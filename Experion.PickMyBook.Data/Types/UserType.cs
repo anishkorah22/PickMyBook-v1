@@ -12,7 +12,7 @@ public class UserType : ObjectType<User>
     {
         public IQueryable<Borrowings> GetBorrowings(User user, [Service] LibraryContext context)
         {
-            return context.Borrowings.Where(b => b.UserId == user.Id);
+            return context.Borrowings.Where(b => b.UserId == user.UserId);
         }
     }
 }

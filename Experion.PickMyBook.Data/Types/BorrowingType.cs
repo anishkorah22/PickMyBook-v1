@@ -15,12 +15,12 @@ public class BorrowingType : ObjectType<Borrowings>
     {
         public User GetUser(Borrowings borrowing, [Service] LibraryContext context)
         {
-            return context.Users.FirstOrDefault(u => u.Id == borrowing.UserId);
+            return context.Users.FirstOrDefault(u => u.UserId == borrowing.UserId);
         }
 
         public Book GetBook(Borrowings borrowing, [Service] LibraryContext context)
         {
-            return context.Books.FirstOrDefault(b => b.Id == borrowing.BookId);
+            return context.Books.FirstOrDefault(b => b.BookId == borrowing.BookId);
         }
     }
 }

@@ -14,7 +14,7 @@ public class BookType : ObjectType<Book>
     {
         public IQueryable<Borrowings> GetBorrowings(Book book, [Service] LibraryContext context)
         {
-            return context.Borrowings.Where(b => b.BookId == book.Id);
+            return context.Borrowings.Where(b => b.BookId == book.BookId);
         }
     }
 }
