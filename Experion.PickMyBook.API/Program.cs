@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Experion.PickMyBook.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -7,6 +6,7 @@ using Experion.PickMyBook.Infrastructure.Models;
 using Experion.PickMyBook.API.GraphQLTypes;
 using HotChocolate.AspNetCore.Playground;
 using HotChocolate.AspNetCore;
+using Experion.PickMyBook.Infrastructure;
 
 
 var builder = WebApplication.CreateBuilder(args);

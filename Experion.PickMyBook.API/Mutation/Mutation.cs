@@ -3,6 +3,7 @@ using Experion.PickMyBook.Infrastructure.Models;
 using Experion.PickMyBook.Data;
 using System.Threading.Tasks;
 using HotChocolate.Authorization;
+using Experion.PickMyBook.Infrastructure;
 
 public class Mutation
 {
