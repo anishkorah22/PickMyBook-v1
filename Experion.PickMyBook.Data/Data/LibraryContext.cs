@@ -22,6 +22,16 @@ namespace Experion.PickMyBook.Data
                 .HasMany(u => u.Borrowings)
                 .WithOne(b => b.User)
                 .HasForeignKey(b => b.UserId);
+
+            // Define a value converter for the Roles property
+            modelBuilder.Entity<User>()
+                .Property(u => u.Roles)
+                .HasConversion(
+                    // Convert IEnumerable<string> to string[] for database storage
+                    v => v.ToArray(),
+                    // Convert string[] from database to IEnumerable<string>
+                    v => v.AsEnumerable())
+                .HasColumnType("text[]"); // Ensure this matches the column type in your database
         }
     }
 }

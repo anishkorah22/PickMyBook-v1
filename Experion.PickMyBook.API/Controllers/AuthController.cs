@@ -1,32 +1,73 @@
-﻿using Experion.PickMyBook.Data;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using System.Net.Mail;
+using System.Net;
+using Experion.PickMyBook.Data;
 using Experion.PickMyBook.Infrastructure.Models;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Experion.PickMyBook.API.Controllers
+namespace Experion.PickMyBook.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
         private readonly LibraryContext _context;
+        private readonly IConfiguration _configuration;
 
-        public AuthController(IConfiguration configuration, LibraryContext context)
+        public class EnumerableToStringArrayConverter : ValueConverter<IEnumerable<string>, string[]>
         {
-            _configuration = configuration;
+            public EnumerableToStringArrayConverter()
+                : base(
+                    v => v.ToArray(), // Convert IEnumerable<string> to string[]
+                    v => v.AsEnumerable()) // Convert string[] to IEnumerable<string>
+            {
+            }
+        }
+        public AuthController(LibraryContext context, IConfiguration configuration)
+        {
             _context = context;
+            _configuration = configuration;
         }
 
-        [HttpPost("login")]
-        public IActionResult Login([FromBody] UserLogin login)
+        [AllowAnonymous]
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            var user = _context.Users.FirstOrDefault(u => u.UserName == login.UserName && u.Password == login.Password);
+            // Check if the user already exists
+            if (_context.Users.Any(u => u.UserName == request.Email))
+                return Conflict("User already exists");
 
-            if (user == null) return Unauthorized();
+            // Create a new user
+            var user = new User
+            {
+                UserName = request.Email,
+                Roles = new List<string> { "User" }, // Default role
+                IsDeleted = false,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return Ok("User created successfully.");
+        }
+
+        // Endpoint to authenticate and issue a JWT token
+        [AllowAnonymous]
+        [HttpPost("authenticate")]
+        public IActionResult Authenticate([FromBody] string email)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.UserName == email);
+
+            if (user == null || user.IsDeleted)
+                return Unauthorized("Invalid credentials");
 
             var token = GenerateJwtToken(user);
             return Ok(new { token });
@@ -34,29 +75,52 @@ namespace Experion.PickMyBook.API.Controllers
 
         private string GenerateJwtToken(User user)
         {
-            var claims = new[]
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+
+            // Convert IEnumerable<string> to IList<string> or directly use ToList() for string.Join
+            var rolesList = user.Roles.ToList(); // Convert to List to ensure it's in the expected format
+
+            var tokenDescriptor = new SecurityTokenDescriptor
             {
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.Role, user.Role)
-        };
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+            new Claim(ClaimTypes.Name, user.UserName),
+            new Claim(ClaimTypes.Role, string.Join(",", rolesList)), // Use the converted list
+                }),
+                Expires = DateTime.UtcNow.AddHours(1),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
 
-            var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.Now.AddMinutes(30),
-                signingCredentials: creds);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+        [Authorize]
+        [HttpGet("getUserInfo")]
+        public IActionResult GetUserInfo()
+        {
+            var userName = User.Identity.Name;
+            var user = _context.Users.FirstOrDefault(u => u.UserName == userName);
+
+            if (user == null)
+                return NotFound("User not found");
+
+            return Ok(new
+            {
+                user.UserId,
+                user.UserName,
+                Roles = user.Roles,
+                user.IsDeleted,
+                user.CreatedAt,
+                user.UpdatedAt
+            });
         }
     }
-    public class UserLogin
+
+    public class RegisterRequest
     {
-        public string UserName { get; set; }
-        public string Password { get; set; }
+        public string Email { get; set; }
     }
 }

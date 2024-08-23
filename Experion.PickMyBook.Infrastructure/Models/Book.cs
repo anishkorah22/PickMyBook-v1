@@ -13,7 +13,7 @@
         public DateTime UpdatedAt { get; set; }
         public int PublishedYear { get; set; }
         public string Genre { get; set; }
-        public ICollection<Borrowings> Borrowings { get; set; } = new List<Borrowings>();
+        public ICollection<Borrowings> Borrowings { get; set; } 
 
     }
 }
