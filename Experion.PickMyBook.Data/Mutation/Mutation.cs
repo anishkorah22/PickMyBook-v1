@@ -25,4 +25,20 @@ public class Mutation
         await context.SaveChangesAsync();
         return borrowing;
     }
+
+    public async Task<User> CreateUser([Service] LibraryContext context, string userName, IEnumerable<string> roles)
+    {
+        var newUser = new User
+        {
+            UserName = userName,
+            Roles = roles,
+            IsDeleted = false,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        context.Users.Add(newUser);
+        await context.SaveChangesAsync();
+        return newUser;
+    }
 }
