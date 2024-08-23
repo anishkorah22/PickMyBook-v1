@@ -1,5 +1,6 @@
 ﻿using Experion.PickMyBook.Infrastructure.Models;
 using Experion.PickMyBook.Data;
+using Experion.PickMyBook.Infrastructure;
 
 public class UserType : ObjectType<User>
 {

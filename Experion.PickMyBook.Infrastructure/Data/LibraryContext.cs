@@ -1,7 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Experion.PickMyBook.Infrastructure.Models;
+using System.Linq;
+using System.Collections.Generic;
+using System.Reflection.Emit;
 
-namespace Experion.PickMyBook.Data
+namespace Experion.PickMyBook.Infrastructure
 {
     public class LibraryContext : DbContext
     {
@@ -24,14 +28,13 @@ namespace Experion.PickMyBook.Data
                 .HasForeignKey(b => b.UserId);
 
             // Define a value converter for the Roles property
+            var rolesConverter = new ValueConverter<IEnumerable<string>, string>(
+                v => string.Join(',', v),
+                v => v.Split(',', StringSplitOptions.RemoveEmptyEntries));
+
             modelBuilder.Entity<User>()
                 .Property(u => u.Roles)
-                .HasConversion(
-                    // Convert IEnumerable<string> to string[] for database storage
-                    v => v.ToArray(),
-                    // Convert string[] from database to IEnumerable<string>
-                    v => v.AsEnumerable())
-                .HasColumnType("text[]"); // Ensure this matches the column type in your database
+                .HasConversion(rolesConverter);
         }
     }
 }
