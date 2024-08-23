@@ -15,4 +15,12 @@ namespace Experion.PickMyBook.Infrastructure.Models
 
         
     }
+    public static class Roles
+    {
+        public const string Admin = "Admin";
+        public const string Staff = "Staff";
+        public const string User = "User";
+
+        public static IEnumerable<string> AllRoles => new[] { Admin, Staff, User };
+    }
 }
