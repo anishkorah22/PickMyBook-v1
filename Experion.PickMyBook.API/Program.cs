@@ -8,14 +8,14 @@ using HotChocolate.AspNetCore.Playground;
 using HotChocolate.AspNetCore;
 using Experion.PickMyBook.Infrastructure;
 using Microsoft.Extensions.Configuration;
+using Experion.PickMyBook.Business.Service;
 using Experion.PickMyBook.Business.Services;
-using Experion.PickMyBook.Data;
 
 
 
 var builder = WebApplication.CreateBuilder(args);
-// Add services to the container.
 
+// Add services to the container.
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -48,6 +48,9 @@ builder.Services.AddScoped<IRepository<User>, UserRepository>();
 builder.Services.AddScoped<IRepository<Book>, BookRepository>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<BookService>();
+// Ensure correct service registration
+builder.Services.AddScoped<IBookService, BookService>();
+builder.Services.AddScoped<IBorrowingService, BorrowingService>();
 
 builder.Services.AddGraphQLServer()
     .AddQueryType<ApiQueryType>()
@@ -59,8 +62,6 @@ builder.Services.AddGraphQLServer()
 
 var app = builder.Build();
 
-
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -69,8 +70,10 @@ if (app.Environment.IsDevelopment())
     app.UsePlayground(new PlaygroundOptions { QueryPath = "/graphql", Path = "/playground" });
 }
 
-/*app.UseRouting();*/
 app.UseHttpsRedirection();
+app.UseAuthentication(); // Ensure authentication middleware is used
+app.UseAuthorization();  // Ensure authorization middleware is used
+
 app.MapGraphQL();
 app.MapControllers();
 
