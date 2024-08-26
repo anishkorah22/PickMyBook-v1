@@ -38,5 +38,11 @@ namespace Experion.PickMyBook.Business.Services
         {
             await _bookRepository.DeleteAsync(id);
         }
+
+        public async Task<int> GetTotalBooksAsync()
+        {
+            var books = await _bookRepository.GetAllAsync();
+            return books.Count(book => (bool)!book.IsDeleted);
+        }
     }
 }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using HotChocolate.Authorization;
 using Experion.PickMyBook.Infrastructure;
 using Experion.PickMyBook.Infrastructure.Models.DTO;
+using Experion.PickMyBook.Business.Services;
 
 public class Mutation
 {
@@ -87,4 +88,25 @@ public class Mutation
         await context.SaveChangesAsync();
         return newUser;
     }
+
+    public async Task<User> UpdateUser([Service] LibraryContext context, User user)
+    {
+        var existingUser = await context.Users.FindAsync(user.UserId);
+
+        if (existingUser == null)
+        {
+            throw new KeyNotFoundException("User not found.");
+        }
+
+        existingUser.UserName = user.UserName;
+        existingUser.Roles = user.Roles;
+        existingUser.IsDeleted = user.IsDeleted;
+        existingUser.UpdatedAt = DateTime.UtcNow;
+
+        context.Users.Update(existingUser);
+        await context.SaveChangesAsync();
+
+        return existingUser;
+    }
+
 }

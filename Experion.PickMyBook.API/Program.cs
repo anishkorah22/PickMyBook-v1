@@ -8,6 +8,9 @@ using HotChocolate.AspNetCore.Playground;
 using HotChocolate.AspNetCore;
 using Experion.PickMyBook.Infrastructure;
 using Microsoft.Extensions.Configuration;
+using Experion.PickMyBook.Business.Services;
+using Experion.PickMyBook.Data;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,41 +41,21 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-/*builder.Services.AddDbContext<LibraryContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
-    b => b.MigrationsAssembly("Experion.PickMyBook.Infrastructure")));*/
-
 builder.Services.AddDbContext<LibraryContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<IRepository<User>, UserRepository>();
+builder.Services.AddScoped<IRepository<Book>, BookRepository>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<BookService>();
 
-   builder.Services.AddGraphQLServer()
+builder.Services.AddGraphQLServer()
     .AddQueryType<ApiQueryType>()
     .AddMutationType<ApiMutationType>()
     .AddType<BookType>()
     .AddType<UserType>()
     .AddType<BorrowingType>()
     .AddAuthorization();
-
-/*builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Issuer"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-    };
-});*/
-
 
 var app = builder.Build();
 
@@ -90,11 +73,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.MapGraphQL();
 app.MapControllers();
-/*app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-    endpoints.MapGraphQL();
 
-});*/
 
 app.Run();
