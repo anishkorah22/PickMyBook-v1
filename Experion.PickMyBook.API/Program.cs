@@ -8,11 +8,12 @@ using HotChocolate.AspNetCore.Playground;
 using HotChocolate.AspNetCore;
 using Experion.PickMyBook.Infrastructure;
 using Microsoft.Extensions.Configuration;
-
+using Experion.PickMyBook.Business.Service;
+using Experion.PickMyBook.Business.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-// Add services to the container.
 
+// Add services to the container.
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -38,15 +39,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-/*builder.Services.AddDbContext<LibraryContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
-    b => b.MigrationsAssembly("Experion.PickMyBook.Infrastructure")));*/
-
 builder.Services.AddDbContext<LibraryContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Ensure correct service registration
+builder.Services.AddScoped<IBookService, BookService>();
+builder.Services.AddScoped<IBorrowingService, BorrowingService>();
 
-   builder.Services.AddGraphQLServer()
+builder.Services.AddGraphQLServer()
     .AddQueryType<ApiQueryType>()
     .AddMutationType<ApiMutationType>()
     .AddType<BookType>()
@@ -54,29 +54,7 @@ builder.Services.AddDbContext<LibraryContext>(options =>
     .AddType<BorrowingType>()
     .AddAuthorization();
 
-/*builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Issuer"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-    };
-});*/
-
-
 var app = builder.Build();
-
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -86,15 +64,11 @@ if (app.Environment.IsDevelopment())
     app.UsePlayground(new PlaygroundOptions { QueryPath = "/graphql", Path = "/playground" });
 }
 
-/*app.UseRouting();*/
 app.UseHttpsRedirection();
+app.UseAuthentication(); // Ensure authentication middleware is used
+app.UseAuthorization();  // Ensure authorization middleware is used
+
 app.MapGraphQL();
 app.MapControllers();
-/*app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-    endpoints.MapGraphQL();
-
-});*/
 
 app.Run();
