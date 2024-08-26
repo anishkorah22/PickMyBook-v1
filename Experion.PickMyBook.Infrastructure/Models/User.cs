@@ -9,9 +9,9 @@ namespace Experion.PickMyBook.Infrastructure.Models
         public string UserName { get; set; }
         public IEnumerable<string> Roles { get; set; }
         public bool IsDeleted { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
-        public ICollection<Borrowings> Borrowings { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public ICollection<Borrowings>? Borrowings { get; set; }
 
         
     }

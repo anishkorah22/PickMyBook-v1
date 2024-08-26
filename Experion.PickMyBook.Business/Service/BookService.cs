@@ -56,6 +56,15 @@ public class BookService : IBookService
         _context.Books.Update(existingBook);
         await _context.SaveChangesAsync();
 
-        return existingBook;
+        public async Task DeleteBookAsync(int id)
+        {
+            await _bookRepository.DeleteAsync(id);
+        }
+
+        public async Task<int> GetTotalBooksAsync()
+        {
+            var books = await _bookRepository.GetAllAsync();
+            return books.Count(book => (bool)!book.IsDeleted);
+        }
     }
 }

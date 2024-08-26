@@ -11,6 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Experion.PickMyBook.Business.Service;
 using Experion.PickMyBook.Business.Services;
 
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -42,6 +44,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<LibraryContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<IRepository<User>, UserRepository>();
+builder.Services.AddScoped<IRepository<Book>, BookRepository>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<BookService>();
 // Ensure correct service registration
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IBorrowingService, BorrowingService>();
@@ -70,5 +76,6 @@ app.UseAuthorization();  // Ensure authorization middleware is used
 
 app.MapGraphQL();
 app.MapControllers();
+
 
 app.Run();
