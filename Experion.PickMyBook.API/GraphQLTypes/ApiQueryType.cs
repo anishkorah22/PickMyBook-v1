@@ -9,7 +9,9 @@ namespace Experion.PickMyBook.API.GraphQLTypes
         {
 
             descriptor.Field(f => f.GetUserByUsername(default!, default!)).Type<UserType>();
-
+            descriptor.Field(f => f.GetBooks(default!))
+                .Type<ListType<BookType>>()
+                .Name("books");
         }
     }
 

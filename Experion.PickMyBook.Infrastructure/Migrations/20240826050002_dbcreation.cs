@@ -4,10 +4,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Experion.PickMyBook.Data.Migrations
+namespace Experion.PickMyBook.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class dbInitialCreation : Migration
+    public partial class dbcreation : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -18,16 +18,16 @@ namespace Experion.PickMyBook.Data.Migrations
                 {
                     BookId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Title = table.Column<string>(type: "text", nullable: false),
-                    Author = table.Column<string>(type: "text", nullable: false),
-                    ISBN = table.Column<string>(type: "text", nullable: false),
-                    Publisher = table.Column<string>(type: "text", nullable: false),
-                    AvailableCopies = table.Column<int>(type: "integer", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    PublishedYear = table.Column<int>(type: "integer", nullable: false),
-                    Genre = table.Column<string>(type: "text", nullable: false)
+                    Title = table.Column<string>(type: "text", nullable: true),
+                    Author = table.Column<string>(type: "text", nullable: true),
+                    ISBN = table.Column<string>(type: "text", nullable: true),
+                    Publisher = table.Column<string>(type: "text", nullable: true),
+                    AvailableCopies = table.Column<int>(type: "integer", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    PublishedYear = table.Column<int>(type: "integer", nullable: true),
+                    Genre = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -41,7 +41,7 @@ namespace Experion.PickMyBook.Data.Migrations
                     UserId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserName = table.Column<string>(type: "text", nullable: false),
-                    Roles = table.Column<string[]>(type: "text[]", nullable: false),
+                    Roles = table.Column<string>(type: "text", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)

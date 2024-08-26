@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Experion.PickMyBook.Infrastructure.Models;
-using System.Linq;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Collections.Generic;
-using System.Reflection.Emit;
+using System.Linq;
 
 namespace Experion.PickMyBook.Infrastructure
 {
@@ -27,14 +27,16 @@ namespace Experion.PickMyBook.Infrastructure
                 .WithOne(b => b.User)
                 .HasForeignKey(b => b.UserId);
 
-            // Define a value converter for the Roles property
-            var rolesConverter = new ValueConverter<IEnumerable<string>, string>(
-                v => string.Join(',', v),
-                v => v.Split(',', StringSplitOptions.RemoveEmptyEntries));
-
             modelBuilder.Entity<User>()
                 .Property(u => u.Roles)
-                .HasConversion(rolesConverter);
+                .HasConversion(
+                    v => string.Join(',', v),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                .Metadata
+                .SetValueComparer(new ValueComparer<IEnumerable<string>>(
+                    (c1, c2) => c1.SequenceEqual(c2),
+                    c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                    c => c.ToList()));
         }
     }
 }

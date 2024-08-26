@@ -7,6 +7,7 @@ using Experion.PickMyBook.API.GraphQLTypes;
 using HotChocolate.AspNetCore.Playground;
 using HotChocolate.AspNetCore;
 using Experion.PickMyBook.Infrastructure;
+using Microsoft.Extensions.Configuration;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,13 +37,16 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 /*builder.Services.AddDbContext<LibraryContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
-    b => b.MigrationsAssembly("Experion.PickMyBook.Data")));*/
+    b => b.MigrationsAssembly("Experion.PickMyBook.Infrastructure")));*/
+
 builder.Services.AddDbContext<LibraryContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));  //separte class needed  [service config]
-builder.Services.AddAuthorization();
-builder.Services.AddGraphQLServer()
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+   builder.Services.AddGraphQLServer()
     .AddQueryType<ApiQueryType>()
     .AddMutationType<ApiMutationType>()
     .AddType<BookType>()

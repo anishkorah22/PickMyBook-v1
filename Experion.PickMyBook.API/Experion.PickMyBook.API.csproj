@@ -23,11 +23,11 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Experion.PickMyBook.Data\Experion.PickMyBook.Data.csproj" />
+    <ProjectReference Include="..\Experion.PickMyBook.Business\Experion.PickMyBook.Business.csproj" />
     <ProjectReference Include="..\Experion.PickMyBook.Infrastructure\Experion.PickMyBook.Infrastructure.csproj" />
   </ItemGroup>
 
