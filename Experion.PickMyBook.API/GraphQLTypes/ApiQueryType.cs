@@ -6,17 +6,7 @@ namespace Experion.PickMyBook.API.GraphQLTypes
     {
         protected override void Configure(IObjectTypeDescriptor<Query> descriptor)
         {
-            /*descriptor.Field(f => f.GetBookCountAsync())
-                .Type<IntType>()
-                .Name("bookCount");
 
-            descriptor.Field(f => f.GetBorrowingCountAsync())
-                .Type<IntType>()
-                .Name("borrowingCount");
-
-            descriptor.Field(f => f.GetUserCountAsync())
-                .Type<IntType>()
-                .Name("userCount");*/
 
             // Existing fields
             descriptor.Field(f => f.GetBooks(default!))

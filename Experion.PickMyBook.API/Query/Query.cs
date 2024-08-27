@@ -33,18 +33,5 @@ public class Query
         return context.Users.FirstOrDefault(u => u.UserId == id);
     }
 
-    /*public async Task<int> GetBookCountAsync()
-    {
-        return await _bookService.GetTotalBooksAsync();
-    }
-
-    public async Task<int> GetUserCountAsync()
-    {
-        return await _userService.GetTotalActiveUsersAsync();
-    }
-
-    public async Task<int> GetBorrowingCountAsync()
-    {
-        return await _borrowingService.GetTotalCurrentBorrowTransactionsAsync();
-    }*/
+    
 }

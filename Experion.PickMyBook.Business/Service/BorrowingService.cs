@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 
 namespace Experion.PickMyBook.Business.Service
 {
-
     public class BorrowingService : IBorrowingService
     {
         private readonly LibraryContext _context;
