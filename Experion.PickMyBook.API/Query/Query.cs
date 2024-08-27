@@ -5,14 +5,16 @@ using Experion.PickMyBook.Business.Service;
 using System.Linq;
 using System.Threading.Tasks;
 using Experion.PickMyBook.Infrastructure;
+using Experion.PickMyBook.Infrastructure.Models.DTO;
+using Experion.PickMyBook.Business.Service.IService;
 
 public class Query
 {
-    private readonly BookService _bookService;
-    private readonly UserService _userService;
-    private readonly BorrowingService _borrowingService;
+    private readonly IBookService _bookService;
+    private readonly IUserService _userService;
+    private readonly IBorrowingService _borrowingService;
 
-    public Query(BookService bookService, UserService userService, BorrowingService borrowingService)
+    public Query(IBookService bookService, IUserService userService, IBorrowingService borrowingService)
     {
         _bookService = bookService;
         _userService = userService;
@@ -33,5 +35,18 @@ public class Query
         return context.Users.FirstOrDefault(u => u.UserId == id);
     }
 
-    
+    public async Task<DashboardCountsDTO> GetDashboardCountsAsync()
+    {
+        var totalBooks = await _bookService.GetTotalBooksCountAsync();
+        var totalActiveUsers = await _userService.GetTotalActiveUsersCountAsync();
+        var totalCurrentBorrowTransactions = await _borrowingService.GetTotalBorrowingsCountAsync();
+
+        return new DashboardCountsDTO
+        {
+            TotalBooks = totalBooks,
+            TotalActiveUsers = totalActiveUsers,
+            TotalCurrentBorrowTransactions = totalCurrentBorrowTransactions
+        };
+    }
+
 }

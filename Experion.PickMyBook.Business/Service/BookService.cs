@@ -2,6 +2,7 @@
 using Experion.PickMyBook.Infrastructure;
 using Experion.PickMyBook.Data;
 using Experion.PickMyBook.Business.Service.IService;
+using Microsoft.EntityFrameworkCore;
 
 
 public class BookService : IBookService
@@ -59,6 +60,13 @@ public class BookService : IBookService
     public async Task DeleteBookAsync(int id)
     {
         await _bookRepository.DeleteAsync(id);
+    }
+
+    public async Task<int> GetTotalBooksCountAsync()
+    {
+        return await _context.Books
+            .Where(b => (b.IsDeleted == false || b.IsDeleted == null) && b.AvailableCopies > 0)
+            .CountAsync();
     }
 
 
