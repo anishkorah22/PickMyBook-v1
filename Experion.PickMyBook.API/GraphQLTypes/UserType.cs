@@ -10,7 +10,6 @@ public class UserType : ObjectType<User>
     protected override void Configure(IObjectTypeDescriptor<User> descriptor)
     {
         descriptor.Field(u => u.Borrowings).ResolveWith<UserResolvers>(u => u.GetBorrowings(default!, default!));
-       /* descriptor.Field("totalActiveUsers").ResolveWith<UserResolvers>(u => u.GetTotalActiveUsers(default!));*/
     }
 
     private class UserResolvers
@@ -20,9 +19,5 @@ public class UserType : ObjectType<User>
             return context.Borrowings.Where(b => b.UserId == user.UserId);
         }
 
-        /*public async Task<int> GetTotalActiveUsers([Service] UserService userService)
-        {
-            return await userService.GetTotalActiveUsersAsync();
-        }*/
     }
 }

@@ -61,9 +61,5 @@ public class BookService : IBookService
         await _bookRepository.DeleteAsync(id);
     }
 
-    public async Task<int> GetTotalBooksAsync()
-    {
-        var books = await _bookRepository.GetAllAsync();
-        return books.Count(book => (bool)!book.IsDeleted);
-    }
+
 }

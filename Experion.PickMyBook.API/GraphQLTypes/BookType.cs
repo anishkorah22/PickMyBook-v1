@@ -20,9 +20,6 @@ public class BookType : ObjectType<Book>
             return context.Borrowings.Where(b => b.BookId == book.BookId);
         }
 
-       /* public async Task<int> GetTotalBooks([Service] BookService bookService)
-        {
-            return await bookService.GetTotalBooksAsync();
-        }*/
+      
     }
 }
