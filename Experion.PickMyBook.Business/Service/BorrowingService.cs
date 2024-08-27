@@ -118,6 +118,13 @@ namespace Experion.PickMyBook.Business.Service
 
             return borrowing;
         }
+
+        public async Task<int> GetTotalBorrowingsCountAsync()
+        {
+            return await _context.Borrowings
+               .Where(b => b.Status == "Borrowed")
+               .CountAsync();
+        }
     }
 
 }

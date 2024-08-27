@@ -12,6 +12,7 @@ using Experion.PickMyBook.Business.Service;
 using Experion.PickMyBook.Business.Services;
 using Experion.PickMyBook.Data;
 using Experion.PickMyBook.Business.Service.IService;
+using Experion.PickMyBook.Infrastructure.Models.DTO;
 
 
 
@@ -45,15 +46,17 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<LibraryContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+/*
+builder.Services.AddScoped<BookService>(); // Ensure BookService is registered
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<BorrowingService>();*/
 builder.Services.AddScoped<IRepository<User>, UserRepository>();
 builder.Services.AddScoped<IRepository<Book>, BookRepository>();
-builder.Services.AddScoped<UserService>();
-/*builder.Services.AddScoped<BookService>();*/
+
 // Ensure correct service registration
 builder.Services.AddScoped<IBookService, BookService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBorrowingService, BorrowingService>();
-builder.Services.AddScoped<LibraryContext>();
 
 builder.Services.AddGraphQLServer()
     .AddQueryType<ApiQueryType>()
@@ -61,6 +64,7 @@ builder.Services.AddGraphQLServer()
     .AddType<BookType>()
     .AddType<UserType>()
     .AddType<BorrowingType>()
+    .AddType<UserType.DashboardCountsType>()
     .AddAuthorization();
 
 var app = builder.Build();

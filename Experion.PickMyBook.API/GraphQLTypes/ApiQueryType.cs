@@ -1,4 +1,5 @@
 ﻿using HotChocolate.Types;
+using static UserType;
 
 namespace Experion.PickMyBook.API.GraphQLTypes
 {
@@ -24,6 +25,10 @@ namespace Experion.PickMyBook.API.GraphQLTypes
             descriptor.Field(f => f.GetBorrowings(default!))
                 .Type<ListType<BorrowingType>>()
                 .Name("borrowings");
+
+            descriptor.Field(f => f.GetDashboardCountsAsync())
+                            .Type<DashboardCountsType>()
+                            .Name("dashboardCounts");
         }
     }
 }
