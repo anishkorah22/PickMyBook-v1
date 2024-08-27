@@ -10,6 +10,8 @@ using Experion.PickMyBook.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Experion.PickMyBook.Business.Service;
 using Experion.PickMyBook.Business.Services;
+using Experion.PickMyBook.Data;
+using Experion.PickMyBook.Business.Service.IService;
 
 
 
@@ -47,10 +49,11 @@ builder.Services.AddDbContext<LibraryContext>(options =>
 builder.Services.AddScoped<IRepository<User>, UserRepository>();
 builder.Services.AddScoped<IRepository<Book>, BookRepository>();
 builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<BookService>();
+/*builder.Services.AddScoped<BookService>();*/
 // Ensure correct service registration
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IBorrowingService, BorrowingService>();
+builder.Services.AddScoped<LibraryContext>();
 
 builder.Services.AddGraphQLServer()
     .AddQueryType<ApiQueryType>()

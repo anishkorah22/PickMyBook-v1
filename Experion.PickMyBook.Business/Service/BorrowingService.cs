@@ -1,4 +1,5 @@
-﻿using Experion.PickMyBook.Infrastructure;
+﻿using Experion.PickMyBook.Business.Service.IService;
+using Experion.PickMyBook.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,12 +9,6 @@ using System.Threading.Tasks;
 
 namespace Experion.PickMyBook.Business.Service
 {
-    public interface IBorrowingService
-    {
-        Task<Borrowings> BorrowBookAsync(int userId, int bookId);
-        Task<Borrowings> UpdateBorrowingAsync(Borrowings borrowing);
-        Task<Borrowings> ReturnBookAsync(int userId, int bookId);
-    }
 
     public class BorrowingService : IBorrowingService
     {
