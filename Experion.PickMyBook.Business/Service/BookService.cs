@@ -64,10 +64,13 @@ public class BookService : IBookService
 
     public async Task<int> GetTotalBooksCountAsync()
     {
-        return await _context.Books
-            .Where(b => (b.IsDeleted == false || b.IsDeleted == null) && b.AvailableCopies > 0)
-            .CountAsync();
+        return (int)await _context.Books
+            .Where(b => (b.IsDeleted == false || !b.IsDeleted.HasValue) && b.AvailableCopies > 0)
+            .SumAsync(b => b.AvailableCopies);
     }
+
+
+
 
 
 }
