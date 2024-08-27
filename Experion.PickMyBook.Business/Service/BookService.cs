@@ -1,16 +1,13 @@
 ﻿using Experion.PickMyBook.Infrastructure.Models.DTO;
 using Experion.PickMyBook.Infrastructure;
+using Experion.PickMyBook.Data;
+using Experion.PickMyBook.Business.Service.IService;
 
-public interface IBookService
-{
-    Task<Book> AddBookAsync(AddBooksDTO dto);
-    Task<Book> UpdateBookAsync(Book book);
-}
 
 public class BookService : IBookService
 {
     private readonly LibraryContext _context;
-
+    private readonly BookRepository _bookRepository;
     public BookService(LibraryContext context)
     {
         _context = context;
@@ -55,16 +52,18 @@ public class BookService : IBookService
 
         _context.Books.Update(existingBook);
         await _context.SaveChangesAsync();
+        return existingBook;
 
-        public async Task DeleteBookAsync(int id)
-        {
-            await _bookRepository.DeleteAsync(id);
-        }
+        
+    }
+    public async Task DeleteBookAsync(int id)
+    {
+        await _bookRepository.DeleteAsync(id);
+    }
 
-        public async Task<int> GetTotalBooksAsync()
-        {
-            var books = await _bookRepository.GetAllAsync();
-            return books.Count(book => (bool)!book.IsDeleted);
-        }
+    public async Task<int> GetTotalBooksAsync()
+    {
+        var books = await _bookRepository.GetAllAsync();
+        return books.Count(book => (bool)!book.IsDeleted);
     }
 }

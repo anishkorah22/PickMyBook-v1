@@ -4,8 +4,7 @@ using Experion.PickMyBook.Infrastructure.Models.DTO;
 using Experion.PickMyBook.Infrastructure.Models;
 using Experion.PickMyBook.Infrastructure;
 using HotChocolate.Authorization;
-using Experion.PickMyBook.Infrastructure.Models.DTO;
-using Experion.PickMyBook.Business.Services;
+using Experion.PickMyBook.Business.Service.IService;
 
 public class Mutation
 {
@@ -22,7 +21,6 @@ public class Mutation
 
     public Task<Book> UpdateBook([Service] LibraryContext context, Book book) => _bookService.UpdateBookAsync(book);
 
-    [Authorize(Roles = new[] { "Admin" })]
     [Authorize(Roles = new[] { "Admin" })]
     public async Task<User> AddUser([Service] LibraryContext context, User user)
     {
