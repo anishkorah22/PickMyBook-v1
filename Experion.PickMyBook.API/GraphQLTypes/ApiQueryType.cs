@@ -29,6 +29,12 @@ namespace Experion.PickMyBook.API.GraphQLTypes
             descriptor.Field(f => f.GetDashboardCountsAsync())
                             .Type<DashboardCountsType>()
                             .Name("dashboardCounts");
+
+            descriptor.Field(q => q.GetBorrowingsByUserIdAsync(default))
+            .Argument("userId", a => a.Type<NonNullType<IntType>>())
+            .Type<ListType<BorrowingType>>()
+            .Name("getBorrowingsByUserId");
+
         }
     }
 }

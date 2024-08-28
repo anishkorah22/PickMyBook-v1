@@ -12,6 +12,7 @@ namespace Experion.PickMyBook.Business.Service.IService
         Task<Borrowings> UpdateBorrowingAsync(Borrowings borrowing);
         Task<Borrowings> ReturnBookAsync(int userId, int bookId);
         Task<int> GetTotalBorrowingsCountAsync();
+        Task<List<Borrowings>> GetBorrowingsByUserIdAsync(int userId);
 
     }
 }

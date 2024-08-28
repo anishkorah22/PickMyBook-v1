@@ -1,5 +1,6 @@
 ﻿using Experion.PickMyBook.Business.Service.IService;
 using Experion.PickMyBook.Data;
+using Experion.PickMyBook.Data.IRepository;
 using Experion.PickMyBook.Infrastructure;
 using Experion.PickMyBook.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
@@ -12,9 +13,9 @@ namespace Experion.PickMyBook.Business.Services
     public class UserService:IUserService
     {
         private readonly LibraryContext _context;
-        private readonly IRepository<User> _userRepository;
+        private readonly IUserRepository _userRepository;
 
-        public UserService(IRepository<User> userRepository ,LibraryContext context)
+        public UserService(IUserRepository userRepository ,LibraryContext context)
         {
             _userRepository = userRepository;
             _context = context;

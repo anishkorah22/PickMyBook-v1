@@ -9,16 +9,14 @@ using HotChocolate.AspNetCore;
 using Experion.PickMyBook.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Experion.PickMyBook.Business.Service;
-using Experion.PickMyBook.Business.Services;
 using Experion.PickMyBook.Data;
 using Experion.PickMyBook.Business.Service.IService;
-using Experion.PickMyBook.Infrastructure.Models.DTO;
-
-
+using Experion.PickMyBook.Data.IRepository;
+using Experion.PickMyBook.Business.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Configure JWT Authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -40,24 +38,26 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+// Configure services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Configure DbContext
 builder.Services.AddDbContext<LibraryContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-/*
-builder.Services.AddScoped<BookService>(); // Ensure BookService is registered
-builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<BorrowingService>();*/
-builder.Services.AddScoped<IRepository<User>, UserRepository>();
-builder.Services.AddScoped<IRepository<Book>, BookRepository>();
 
-// Ensure correct service registration
+// Register Repositories
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IBookRepository, BookRepository>();
+builder.Services.AddScoped<IBorrowingsRepository, BorrowingsRepository>();
+
+// Register Services
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBorrowingService, BorrowingService>();
 
+// Configure GraphQL Server
 builder.Services.AddGraphQLServer()
     .AddQueryType<ApiQueryType>()
     .AddMutationType<ApiMutationType>()
@@ -69,7 +69,7 @@ builder.Services.AddGraphQLServer()
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -78,11 +78,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseAuthentication(); // Ensure authentication middleware is used
-app.UseAuthorization();  // Ensure authorization middleware is used
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapGraphQL();
 app.MapControllers();
-
 
 app.Run();

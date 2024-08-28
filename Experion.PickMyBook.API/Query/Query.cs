@@ -24,6 +24,11 @@ public class Query
     public IQueryable<Book> GetBooks([Service] LibraryContext context) => context.Books;
 
     public IQueryable<Borrowings> GetBorrowings([Service] LibraryContext context) => context.Borrowings;
+    
+    public async Task<List<Borrowings>> GetBorrowingsByUserIdAsync(int userId)
+    {
+        return await _borrowingService.GetBorrowingsByUserIdAsync(userId);
+    }
 
     public async Task<IEnumerable<User>> GetAllUsers([Service] UserService userService)
     {
@@ -48,5 +53,6 @@ public class Query
             TotalCurrentBorrowTransactions = totalCurrentBorrowTransactions
         };
     }
+
 
 }

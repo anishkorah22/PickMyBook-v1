@@ -1,4 +1,6 @@
 ﻿using Experion.PickMyBook.Business.Service.IService;
+using Experion.PickMyBook.Data;
+using Experion.PickMyBook.Data.IRepository;
 using Experion.PickMyBook.Infrastructure;
 using Experion.PickMyBook.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +13,12 @@ namespace Experion.PickMyBook.Business.Service
     public class BorrowingService : IBorrowingService
     {
         private readonly LibraryContext _context;
+        private readonly IBorrowingsRepository _borrowingsRepository;
 
-        public BorrowingService(LibraryContext context)
+        public BorrowingService(LibraryContext context, IBorrowingsRepository borrowingsRepository)
         {
             _context = context;
+            _borrowingsRepository = borrowingsRepository;
         }
 
         private decimal CalculateFineAmount(DateTime returnDate, DateTime currentDate)
@@ -27,9 +31,9 @@ namespace Experion.PickMyBook.Business.Service
         {
             var currentDate = DateTime.UtcNow;
             var book = await _context.Books.FindAsync(bookId);
-            if (book == null)
+            if (book == null || book.AvailableCopies <= 0)
             {
-                throw new ArgumentException("Book not found.");
+                throw new ArgumentException("Book not available or not found.");
             }
 
             var user = await _context.Users.FindAsync(userId);
@@ -39,7 +43,7 @@ namespace Experion.PickMyBook.Business.Service
             }
 
             var existingBorrowing = await _context.Borrowings
-                .Where(b => b.BookId == bookId && b.UserId == userId)
+                .Where(b => b.BookId == bookId && b.UserId == userId && b.Status == "Borrowed")
                 .FirstOrDefaultAsync();
 
             if (existingBorrowing != null)
@@ -74,9 +78,11 @@ namespace Experion.PickMyBook.Business.Service
                 throw new KeyNotFoundException("Borrowing record not found.");
             }
 
+
             existingBorrowing.ReturnDate = borrowing.ReturnDate.HasValue ? borrowing.ReturnDate : existingBorrowing.ReturnDate;
             existingBorrowing.Status = borrowing.Status;  // Use the enum directly
             existingBorrowing.FineAmt = borrowing.FineAmt.HasValue ? borrowing.FineAmt : existingBorrowing.FineAmt;
+
 
             _context.Borrowings.Update(existingBorrowing);
             await _context.SaveChangesAsync();
@@ -89,7 +95,7 @@ namespace Experion.PickMyBook.Business.Service
             var currentDate = DateTime.UtcNow;
 
             var borrowing = await _context.Borrowings
-                .FirstOrDefaultAsync(b => b.BookId == bookId && b.UserId == userId);
+                .FirstOrDefaultAsync(b => b.BookId == bookId && b.UserId == userId && b.Status == "Borrowed");
 
             if (borrowing == null)
             {
@@ -100,7 +106,7 @@ namespace Experion.PickMyBook.Business.Service
 
             if (currentDate > borrowing.ReturnDate)
             {
-                borrowing.FineAmt = CalculateFineAmount((DateTime)borrowing.ReturnDate, currentDate);
+                borrowing.FineAmt = CalculateFineAmount(borrowing.ReturnDate.Value, currentDate);
             }
 
             borrowing.Status = BorrowingStatus.Returned;  // Use the enum here
@@ -121,8 +127,16 @@ namespace Experion.PickMyBook.Business.Service
         public async Task<int> GetTotalBorrowingsCountAsync()
         {
             return await _context.Borrowings
+
                .Where(b => b.Status == BorrowingStatus.Borrowed)  // Use the enum here
                .CountAsync();
         }
+
+
+        public async Task<List<Borrowings>> GetBorrowingsByUserIdAsync(int userId)
+        {
+            return await _borrowingsRepository.GetBorrowingsByUserIdAsync(userId);
+        }
+
     }
 }
