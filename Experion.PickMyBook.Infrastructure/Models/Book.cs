@@ -17,5 +17,8 @@ public class Book
     public DateTime? UpdatedAt { get; set; } = DateTime.UtcNow;
     public int? PublishedYear { get; set; }
     public string? Genre { get; set; }
+
+    [MaxLength(3)]
+    public string[]? ImageUrls { get; set; } = new string[3];
     public ICollection<Borrowings>? Borrowings { get; set; } = new List<Borrowings>();
 }

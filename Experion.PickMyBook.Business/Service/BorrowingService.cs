@@ -5,7 +5,6 @@ using Experion.PickMyBook.Infrastructure;
 using Experion.PickMyBook.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -58,7 +57,7 @@ namespace Experion.PickMyBook.Business.Service
                 UserId = userId,
                 BorrowDate = currentDate,
                 ReturnDate = currentDate.AddDays(14),
-                Status = "Borrowed"
+                Status = BorrowingStatus.Borrowed  // Use the enum here
             };
 
             _context.Borrowings.Add(borrowing);
@@ -79,9 +78,11 @@ namespace Experion.PickMyBook.Business.Service
                 throw new KeyNotFoundException("Borrowing record not found.");
             }
 
-            existingBorrowing.ReturnDate = borrowing.ReturnDate ?? existingBorrowing.ReturnDate;
-            existingBorrowing.Status = !string.IsNullOrEmpty(borrowing.Status) ? borrowing.Status : existingBorrowing.Status;
-            existingBorrowing.FineAmt = borrowing.FineAmt ?? existingBorrowing.FineAmt;
+
+            existingBorrowing.ReturnDate = borrowing.ReturnDate.HasValue ? borrowing.ReturnDate : existingBorrowing.ReturnDate;
+            existingBorrowing.Status = borrowing.Status;  // Use the enum directly
+            existingBorrowing.FineAmt = borrowing.FineAmt.HasValue ? borrowing.FineAmt : existingBorrowing.FineAmt;
+
 
             _context.Borrowings.Update(existingBorrowing);
             await _context.SaveChangesAsync();
@@ -108,7 +109,7 @@ namespace Experion.PickMyBook.Business.Service
                 borrowing.FineAmt = CalculateFineAmount(borrowing.ReturnDate.Value, currentDate);
             }
 
-            borrowing.Status = "Returned";
+            borrowing.Status = BorrowingStatus.Returned;  // Use the enum here
 
             var book = await _context.Books.FindAsync(bookId);
             if (book == null)
@@ -126,13 +127,16 @@ namespace Experion.PickMyBook.Business.Service
         public async Task<int> GetTotalBorrowingsCountAsync()
         {
             return await _context.Borrowings
-                .Where(b => b.Status == "Borrowed")
-                .CountAsync();
+
+               .Where(b => b.Status == BorrowingStatus.Borrowed)  // Use the enum here
+               .CountAsync();
         }
+
 
         public async Task<List<Borrowings>> GetBorrowingsByUserIdAsync(int userId)
         {
             return await _borrowingsRepository.GetBorrowingsByUserIdAsync(userId);
         }
+
     }
 }
