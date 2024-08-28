@@ -1,10 +1,9 @@
 ﻿using Experion.PickMyBook.Business.Service.IService;
 using Experion.PickMyBook.Infrastructure;
+using Experion.PickMyBook.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Experion.PickMyBook.Business.Service
@@ -54,7 +53,7 @@ namespace Experion.PickMyBook.Business.Service
                 UserId = userId,
                 BorrowDate = currentDate,
                 ReturnDate = currentDate.AddDays(14),
-                Status = "Borrowed"
+                Status = BorrowingStatus.Borrowed  // Use the enum here
             };
 
             _context.Borrowings.Add(borrowing);
@@ -76,7 +75,7 @@ namespace Experion.PickMyBook.Business.Service
             }
 
             existingBorrowing.ReturnDate = borrowing.ReturnDate.HasValue ? borrowing.ReturnDate : existingBorrowing.ReturnDate;
-            existingBorrowing.Status = !string.IsNullOrEmpty(borrowing.Status) ? borrowing.Status : existingBorrowing.Status;
+            existingBorrowing.Status = borrowing.Status;  // Use the enum directly
             existingBorrowing.FineAmt = borrowing.FineAmt.HasValue ? borrowing.FineAmt : existingBorrowing.FineAmt;
 
             _context.Borrowings.Update(existingBorrowing);
@@ -104,7 +103,7 @@ namespace Experion.PickMyBook.Business.Service
                 borrowing.FineAmt = CalculateFineAmount((DateTime)borrowing.ReturnDate, currentDate);
             }
 
-            borrowing.Status = "Returned";
+            borrowing.Status = BorrowingStatus.Returned;  // Use the enum here
 
             var book = await _context.Books.FindAsync(bookId);
             if (book == null)
@@ -122,9 +121,8 @@ namespace Experion.PickMyBook.Business.Service
         public async Task<int> GetTotalBorrowingsCountAsync()
         {
             return await _context.Borrowings
-               .Where(b => b.Status == "Borrowed")
+               .Where(b => b.Status == BorrowingStatus.Borrowed)  // Use the enum here
                .CountAsync();
         }
     }
-
 }

@@ -14,6 +14,7 @@ namespace Experion.PickMyBook.Infrastructure
         public DbSet<Book> Books { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Borrowings> Borrowings { get; set; }
+        public DbSet<Request> Requests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -40,6 +41,21 @@ namespace Experion.PickMyBook.Infrastructure
 
             modelBuilder.Entity<Borrowings>()
                 .HasKey(b => new { b.BookId, b.UserId });
+
+           
+            modelBuilder.Entity<Request>()
+                .HasOne(r => r.Book)
+                .WithMany()
+                .HasForeignKey(r => r.BookId);
+
+            modelBuilder.Entity<Request>()
+                .HasOne(r => r.User)
+                .WithMany()
+                .HasForeignKey(r => r.UserId);
+
+            modelBuilder.Entity<Request>()
+                .Property(r => r.RequestedAt)
+                .HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");  
         }
     }
 }

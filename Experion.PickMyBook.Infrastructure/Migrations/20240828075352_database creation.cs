@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Experion.PickMyBook.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class dbcreation : Migration
+    public partial class databasecreation : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -27,7 +27,8 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     PublishedYear = table.Column<int>(type: "integer", nullable: true),
-                    Genre = table.Column<string>(type: "text", nullable: true)
+                    Genre = table.Column<string>(type: "text", nullable: true),
+                    ImageUrls = table.Column<string[]>(type: "text[]", maxLength: 3, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -43,8 +44,8 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
                     UserName = table.Column<string>(type: "text", nullable: false),
                     Roles = table.Column<string>(type: "text", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -55,18 +56,16 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
                 name: "Borrowings",
                 columns: table => new
                 {
-                    BorrowingsId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     BookId = table.Column<int>(type: "integer", nullable: false),
                     UserId = table.Column<int>(type: "integer", nullable: false),
-                    BorrowDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    BorrowDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     ReturnDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    Status = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
                     FineAmt = table.Column<decimal>(type: "numeric", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Borrowings", x => x.BorrowingsId);
+                    table.PrimaryKey("PK_Borrowings", x => new { x.BookId, x.UserId });
                     table.ForeignKey(
                         name: "FK_Borrowings_Books_BookId",
                         column: x => x.BookId,
@@ -81,14 +80,49 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Borrowings_BookId",
-                table: "Borrowings",
-                column: "BookId");
+            migrationBuilder.CreateTable(
+                name: "Requests",
+                columns: table => new
+                {
+                    RequestId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    BookId = table.Column<int>(type: "integer", nullable: false),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    RequestType = table.Column<int>(type: "integer", nullable: false),
+                    RequestedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true, defaultValueSql: "NOW() AT TIME ZONE 'UTC'"),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    Message = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Requests", x => x.RequestId);
+                    table.ForeignKey(
+                        name: "FK_Requests_Books_BookId",
+                        column: x => x.BookId,
+                        principalTable: "Books",
+                        principalColumn: "BookId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Requests_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Borrowings_UserId",
                 table: "Borrowings",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Requests_BookId",
+                table: "Requests",
+                column: "BookId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Requests_UserId",
+                table: "Requests",
                 column: "UserId");
         }
 
@@ -97,6 +131,9 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Borrowings");
+
+            migrationBuilder.DropTable(
+                name: "Requests");
 
             migrationBuilder.DropTable(
                 name: "Books");

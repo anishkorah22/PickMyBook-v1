@@ -45,6 +45,10 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
                     b.Property<string>("ISBN")
                         .HasColumnType("text");
 
+                    b.Property<string[]>("ImageUrls")
+                        .HasMaxLength(3)
+                        .HasColumnType("text[]");
+
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("boolean");
 
@@ -65,18 +69,15 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
                     b.ToTable("Books");
                 });
 
-            modelBuilder.Entity("Experion.PickMyBook.Infrastructure.Models.Borrowings", b =>
+            modelBuilder.Entity("Borrowings", b =>
                 {
-                    b.Property<int>("BorrowingsId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BorrowingsId"));
-
                     b.Property<int>("BookId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("BorrowDate")
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("BorrowDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal?>("FineAmt")
@@ -85,20 +86,51 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
                     b.Property<DateTime?>("ReturnDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("BookId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Borrowings");
+                });
+
+            modelBuilder.Entity("Experion.PickMyBook.Infrastructure.Models.Request", b =>
+                {
+                    b.Property<int>("RequestId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("RequestId"));
+
+                    b.Property<int>("BookId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Message")
                         .HasColumnType("text");
+
+                    b.Property<int>("RequestType")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("RequestedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
-                    b.HasKey("BorrowingsId");
+                    b.HasKey("RequestId");
 
                     b.HasIndex("BookId");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Borrowings");
+                    b.ToTable("Requests");
                 });
 
             modelBuilder.Entity("Experion.PickMyBook.Infrastructure.Models.User", b =>
@@ -109,7 +141,7 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserId"));
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
@@ -119,7 +151,7 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UserName")
@@ -131,7 +163,7 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Experion.PickMyBook.Infrastructure.Models.Borrowings", b =>
+            modelBuilder.Entity("Borrowings", b =>
                 {
                     b.HasOne("Book", "Book")
                         .WithMany("Borrowings")
@@ -141,6 +173,25 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
 
                     b.HasOne("Experion.PickMyBook.Infrastructure.Models.User", "User")
                         .WithMany("Borrowings")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Experion.PickMyBook.Infrastructure.Models.Request", b =>
+                {
+                    b.HasOne("Book", "Book")
+                        .WithMany()
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Experion.PickMyBook.Infrastructure.Models.User", "User")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
