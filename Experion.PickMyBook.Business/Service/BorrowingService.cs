@@ -43,7 +43,7 @@ namespace Experion.PickMyBook.Business.Service
             }
 
             var existingBorrowing = await _context.Borrowings
-                .Where(b => b.BookId == bookId && b.UserId == userId && b.Status == "Borrowed")
+                .Where(b => b.BookId == bookId && b.UserId == userId && b.Status == BorrowingStatus.Borrowed)
                 .FirstOrDefaultAsync();
 
             if (existingBorrowing != null)
@@ -95,7 +95,7 @@ namespace Experion.PickMyBook.Business.Service
             var currentDate = DateTime.UtcNow;
 
             var borrowing = await _context.Borrowings
-                .FirstOrDefaultAsync(b => b.BookId == bookId && b.UserId == userId && b.Status == "Borrowed");
+                .FirstOrDefaultAsync(b => b.BookId == bookId && b.UserId == userId && b.Status == BorrowingStatus.Borrowed);
 
             if (borrowing == null)
             {
