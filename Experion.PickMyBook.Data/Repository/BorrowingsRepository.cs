@@ -1,4 +1,5 @@
-﻿using Experion.PickMyBook.Infrastructure;
+﻿using Experion.PickMyBook.Data.IRepository;
+using Experion.PickMyBook.Infrastructure;
 using Experion.PickMyBook.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Experion.PickMyBook.Data
 {
-    public class BorrowingsRepository : IRepository<Borrowings>
+    public class BorrowingsRepository : IBorrowingsRepository
     {
         private readonly LibraryContext _context;
 
@@ -46,5 +47,13 @@ namespace Experion.PickMyBook.Data
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<List<Borrowings>> GetBorrowingsByUserIdAsync(int userId)
+        {
+            return await _context.Borrowings
+                .Where(b => b.UserId == userId)
+                .ToListAsync();
+        }
+
     }
 }

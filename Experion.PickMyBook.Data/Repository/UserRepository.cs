@@ -1,4 +1,5 @@
-﻿using Experion.PickMyBook.Infrastructure;
+﻿using Experion.PickMyBook.Data.IRepository;
+using Experion.PickMyBook.Infrastructure;
 using Experion.PickMyBook.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Experion.PickMyBook.Data
 {
-    public class UserRepository : IRepository<User>
+    public class UserRepository : IUserRepository
     {
         private readonly LibraryContext _context;
 
