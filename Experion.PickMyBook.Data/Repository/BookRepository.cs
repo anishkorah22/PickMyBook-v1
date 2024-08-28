@@ -1,12 +1,14 @@
-﻿using Experion.PickMyBook.Infrastructure;
+﻿using Experion.PickMyBook.Data.IRepository;
+using Experion.PickMyBook.Infrastructure;
 using Experion.PickMyBook.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Experion.PickMyBook.Data
 {
-    public class BookRepository : IRepository<Book>
+    public class BookRepository : IBookRepository
     {
         private readonly LibraryContext _context;
 
@@ -17,35 +19,52 @@ namespace Experion.PickMyBook.Data
 
         public async Task<IEnumerable<Book>> GetAllAsync()
         {
-            return await _context.Books.ToListAsync();
+            // Fetch books only if they are not marked as deleted
+            return await _context.Books
+                .Where(b => !b.IsDeleted.HasValue || !b.IsDeleted.Value)
+                .ToListAsync();
         }
 
         public async Task<Book> GetByIdAsync(int id)
         {
-            return await _context.Books.FindAsync(id);
+            // Include check for IsDeleted
+            return await _context.Books
+                .Where(b => b.BookId == id && (!b.IsDeleted.HasValue || !b.IsDeleted.Value))
+                .FirstOrDefaultAsync();
         }
 
         public async Task AddAsync(Book entity)
         {
+            // Add book to the context
             await _context.Books.AddAsync(entity);
             await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(Book entity)
         {
-            _context.Books.Update(entity);
+            var existingBook = await _context.Books.FindAsync(entity.BookId);
+            if (existingBook == null || existingBook.IsDeleted == true)
+            {
+                throw new KeyNotFoundException("Book not found or is deleted.");
+            }
+
+            // Update properties if the book is found and not deleted
+            _context.Entry(existingBook).CurrentValues.SetValues(entity);
             await _context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int id)
         {
             var book = await _context.Books.FindAsync(id);
-            if (book != null)
+            if (book == null || book.IsDeleted == true)
             {
-                _context.Books.Remove(book);
-                await _context.SaveChangesAsync();
+                throw new KeyNotFoundException("Book not found or is already deleted.");
             }
+
+            // Mark book as deleted instead of actually removing it
+            book.IsDeleted = true;
+            _context.Books.Update(book);
+            await _context.SaveChangesAsync();
         }
     }
 }
- 
