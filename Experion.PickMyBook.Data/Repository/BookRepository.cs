@@ -61,8 +61,18 @@ namespace Experion.PickMyBook.Data
                 throw new KeyNotFoundException("Book not found or is already deleted.");
             }
 
-            // Mark book as deleted instead of actually removing it
             book.IsDeleted = true;
+            _context.Books.Update(book);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Book> GetBookByIdAsync(int bookId)
+        {
+            return await _context.Books.FindAsync(bookId);
+        }
+
+        public async Task UpdateBookAsync(Book book)
+        {
             _context.Books.Update(book);
             await _context.SaveChangesAsync();
         }

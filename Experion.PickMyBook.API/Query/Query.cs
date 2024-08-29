@@ -13,12 +13,14 @@ public class Query
     private readonly IBookService _bookService;
     private readonly IUserService _userService;
     private readonly IBorrowingService _borrowingService;
+    private readonly IRequestService _requestService;
 
-    public Query(IBookService bookService, IUserService userService, IBorrowingService borrowingService)
+    public Query(IBookService bookService, IUserService userService, IBorrowingService borrowingService, IRequestService requestService)
     {
         _bookService = bookService;
         _userService = userService;
         _borrowingService = borrowingService;
+        _requestService = requestService;
     }
 
     public IQueryable<Book> GetBooks([Service] LibraryContext context) => context.Books;
@@ -54,5 +56,10 @@ public class Query
         };
     }
 
+    public async Task<IEnumerable<RequestDTO>> GetAllRequestsAsync()
+    {
+        return await _requestService.GetAllRequestsAsync();
+
+    }
 
 }

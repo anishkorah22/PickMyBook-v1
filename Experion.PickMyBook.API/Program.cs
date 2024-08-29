@@ -13,7 +13,6 @@ using Experion.PickMyBook.Data;
 using Experion.PickMyBook.Business.Service.IService;
 using Experion.PickMyBook.Data.IRepository;
 using Experion.PickMyBook.Business.Services;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure JWT Authentication
@@ -51,24 +50,41 @@ builder.Services.AddDbContext<LibraryContext>(options =>
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IBorrowingsRepository, BorrowingsRepository>();
+builder.Services.AddScoped<IRequestRepository, RequestRepository>();
 
 // Register Services
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBorrowingService, BorrowingService>();
+builder.Services.AddScoped<IRequestService, RequestService>();
 
 // Configure GraphQL Server
 builder.Services.AddGraphQLServer()
     .AddQueryType<ApiQueryType>()
     .AddMutationType<ApiMutationType>()
+    .AddSubscriptionType<ApiSubscriptionType>() 
     .AddType<BookType>()
     .AddType<UserType>()
     .AddType<BorrowingType>()
     .AddType<UserType.DashboardCountsType>()
+    .AddInMemorySubscriptions()
     .AddAuthorization();
 
 var app = builder.Build();
+app.UseWebSockets(); // Ensure WebSockets are enabled
+app.UseRouting(); // Add routing middleware before mapping endpoints
 
+// CORS configuration
+app.UseCors(builder =>
+    builder.WithOrigins("https://localhost:7131")
+           .AllowAnyHeader()
+           .AllowAnyMethod()
+           .AllowCredentials()
+           .WithExposedHeaders("Content-Disposition"));
+
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapGraphQL(); // Map GraphQL endpoint
 // Configure middleware
 if (app.Environment.IsDevelopment())
 {
@@ -78,10 +94,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapGraphQL();
 app.MapControllers();
 
 app.Run();

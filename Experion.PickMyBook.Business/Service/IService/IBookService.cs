@@ -12,6 +12,7 @@ namespace Experion.PickMyBook.Business.Service.IService
         Task<Book> AddBookAsync(AddBooksDTO dto);
         Task<Book> UpdateBookAsync(Book book);
         Task<int> GetTotalBooksCountAsync();
+        Task<Book> UpdateBookStatusAsync(int bookId, bool isDeleted);
 
     }
 }

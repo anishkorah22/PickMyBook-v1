@@ -23,9 +23,23 @@ namespace Experion.PickMyBook.API.GraphQLTypes
 
             descriptor.Field(m => m.UpdateBorrowing(default!, default!))
                 .Type<BorrowingType>();
+
             descriptor.Field(f => f.UpdateUser(default!, default!))
               .Type<UserType>()
               .Name("updateUser");
+
+            descriptor.Field(f => f.UpdateBookStatusAsync(default!, default!))
+                .Type<BookType>()
+                .Name("updateBookStatus") 
+                .Argument("bookId", a => a.Type<NonNullType<IntType>>())
+                .Argument("isDeleted", a => a.Type<BooleanType>());
+
+            descriptor.Field(f => f.UpdateUserStatusAsync(default!, default!))
+                .Type<UserType>()
+                .Name("updateUserStatus")
+                .Argument("userId", a => a.Type<NonNullType<IntType>>())
+                .Argument("isDeleted", a => a.Type<BooleanType>());
+
 
         }
     }

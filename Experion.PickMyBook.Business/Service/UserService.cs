@@ -62,5 +62,18 @@ namespace Experion.PickMyBook.Business.Services
                 .Where(u => !u.IsDeleted)
                 .CountAsync();
         }
+
+        public async Task<User> UpdateUserStatusAsync(int userId, bool isDeleted)
+        {
+            var user = await _userRepository.GetByUserIdAsync(userId);
+            if (user == null)
+            {
+                throw new ArgumentException("User not found.");
+            }
+            user.IsDeleted = isDeleted;
+            user.UpdatedAt = DateTime.UtcNow;
+            await _userRepository.UpdateUserAsync(user);
+            return user;
+        }
     }
 }
