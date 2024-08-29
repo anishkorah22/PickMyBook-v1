@@ -5,16 +5,25 @@ using Experion.PickMyBook.Infrastructure.Models;
 using Experion.PickMyBook.Infrastructure;
 using HotChocolate.Authorization;
 using Experion.PickMyBook.Business.Service.IService;
+using HotChocolate.Subscriptions;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 public class Mutation
 {
     private readonly IBookService _bookService;
+    private readonly IUserService _userService;
     private readonly IBorrowingService _borrowingService;
+    private readonly IRequestService _requestService;
+    private readonly ITopicEventSender _eventSender;
 
-    public Mutation(IBookService bookService, IBorrowingService borrowingService)
+    public Mutation(IBookService bookService, IUserService userService, IBorrowingService borrowingService, IRequestService requestService, ITopicEventSender eventSender)
     {
         _bookService = bookService;
+        _userService = userService;
         _borrowingService = borrowingService;
+        _requestService = requestService;
+        _eventSender = eventSender;
     }
 
     public Task<Book> AddBook([Service] LibraryContext context, AddBooksDTO dto) => _bookService.AddBookAsync(dto);
@@ -28,6 +37,7 @@ public class Mutation
         await context.SaveChangesAsync();
         return user;
     }
+
     public Task<Borrowings> BorrowBook([Service] LibraryContext context, int userId, int bookId) => _borrowingService.BorrowBookAsync(userId, bookId);
 
     public Task<Borrowings> UpdateBorrowing([Service] LibraryContext context, Borrowings borrowing) => _borrowingService.UpdateBorrowingAsync(borrowing);
@@ -40,7 +50,6 @@ public class Mutation
         {
             UserName = userName,
             Roles = roles,
-            IsDeleted = false,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -68,6 +77,23 @@ public class Mutation
         await context.SaveChangesAsync();
 
         return existingUser;
+    }
+
+    public async Task<Book> UpdateBookStatusAsync(int bookId, bool isDeleted)
+    {
+        var updatedBook = await _bookService.UpdateBookStatusAsync(bookId, isDeleted);
+
+        await _eventSender.SendAsync("OnBookStatusChanged", updatedBook);
+
+        return updatedBook;
+    }
+    public async Task<User> UpdateUserStatusAsync(int userId, bool isDeleted)
+    {
+        var updatedUser = await _userService.UpdateUserStatusAsync(userId, isDeleted);
+
+        await _eventSender.SendAsync("OnUserStatusChanged", updatedUser);
+
+        return updatedUser;
     }
 
 }

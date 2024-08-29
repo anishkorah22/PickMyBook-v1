@@ -11,6 +11,10 @@ namespace Experion.PickMyBook.Data.IRepository
         Task AddAsync(Book entity);
         Task UpdateAsync(Book entity);
         Task DeleteAsync(int id);
+        Task<Book> GetBookByIdAsync(int bookId);
+        Task UpdateBookAsync(Book book);
+
+
     }
 }
 

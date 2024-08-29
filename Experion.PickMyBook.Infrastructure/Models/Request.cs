@@ -31,11 +31,11 @@ namespace Experion.PickMyBook.Infrastructure.Models
         public int UserId { get; set; }
         public User? User { get; set; }
 
-        public RequestType RequestType { get; set; }
+        public RequestType? RequestType { get; set; }
 
         public DateTime? RequestedAt { get; set; } = DateTime.UtcNow;
 
-        public RequestStatus Status { get; set; } = RequestStatus.Pending;  // Enum: Pending, Approved, Declined
+        public RequestStatus? Status { get; set; } = RequestStatus.Pending;  // Enum: Pending, Approved, Declined
 
         public string? Message { get; set; }
     }

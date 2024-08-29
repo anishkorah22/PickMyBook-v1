@@ -1,6 +1,5 @@
 ﻿using Experion.PickMyBook.Infrastructure.Models;
 using Experion.PickMyBook.Infrastructure.Models.DTO;
-using Experion.PickMyBook.Data;
 using Experion.PickMyBook.Data.IRepository;
 using Experion.PickMyBook.Business.Service.IService;
 using System;
@@ -70,9 +69,25 @@ public class BookService : IBookService
 
     public async Task<int> GetTotalBooksCountAsync()
     {
-        return (int)await _bookRepository.GetAllAsync()
-            .ContinueWith(task => task.Result
-                .Where(b => !b.IsDeleted.HasValue || !b.IsDeleted.Value)
-                .Sum(b => b.AvailableCopies));
+        var books = await _bookRepository.GetAllAsync();
+        return books
+            .Where(b => !b.IsDeleted.HasValue || !b.IsDeleted.Value)
+            .Sum(b => b.AvailableCopies ?? 0);
     }
+
+    public async Task<Book> UpdateBookStatusAsync(int bookId, bool isDeleted)
+    {
+        var book = await _bookRepository.GetBookByIdAsync(bookId);
+
+        if (book == null)
+        {
+            throw new ArgumentException("Book not found.");
+        }
+
+        book.IsDeleted = isDeleted;
+        book.UpdatedAt = DateTime.UtcNow;
+        await _bookRepository.UpdateBookAsync(book);
+        return book;
+    }
+
 }

@@ -57,7 +57,7 @@ namespace Experion.PickMyBook.Business.Service
                 UserId = userId,
                 BorrowDate = currentDate,
                 ReturnDate = currentDate.AddDays(14),
-                Status = BorrowingStatus.Borrowed  // Use the enum here
+                Status = BorrowingStatus.Borrowed 
             };
 
             _context.Borrowings.Add(borrowing);

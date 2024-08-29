@@ -50,5 +50,24 @@ namespace Experion.PickMyBook.Data
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task UpdateStatusAsync(User entity)
+        {
+            var existingUser = await _context.Books.FindAsync(entity.UserId);
+
+            _context.Entry(existingUser).CurrentValues.SetValues(entity);
+            await _context.SaveChangesAsync();
+        }
+        public async Task<User> GetByUserIdAsync(int id)
+        {
+            return await _context.Users
+                .Where(u => u.UserId == id && !u.IsDeleted)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task UpdateUserAsync(User user)
+        {
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+        }
     }
 }
