@@ -1,78 +1,27 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Experion.PickMyBook.Infrastructure.Models;
-using Experion.PickMyBook.API.GraphQLTypes;
-using HotChocolate.AspNetCore.Playground;
+using Experion.PickMyBook.API.Extensions;
 using HotChocolate.AspNetCore;
-using Experion.PickMyBook.Infrastructure;
-using Microsoft.Extensions.Configuration;
-using Experion.PickMyBook.Business.Service;
-using Experion.PickMyBook.Data;
-using Experion.PickMyBook.Business.Service.IService;
-using Experion.PickMyBook.Data.IRepository;
-using Experion.PickMyBook.Business.Services;
+using HotChocolate.AspNetCore.Playground;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure JWT Authentication
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-    };
-});
+// Configure Options and Services
+builder.Services
+    .AddApplicationOptions(builder.Configuration)
+    .AddApplicationAuthentication(builder.Configuration)
+    .AddApplicationDbContext()
+    .AddApplicationServices()
+    .AddApplicationGraphQL();
 
 builder.Services.AddAuthorization();
-
-// Configure services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configure DbContext
-builder.Services.AddDbContext<LibraryContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// Register Repositories
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IBookRepository, BookRepository>();
-builder.Services.AddScoped<IBorrowingsRepository, BorrowingsRepository>();
-builder.Services.AddScoped<IRequestRepository, RequestRepository>();
-
-// Register Services
-builder.Services.AddScoped<IBookService, BookService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IBorrowingService, BorrowingService>();
-builder.Services.AddScoped<IRequestService, RequestService>();
-
-// Configure GraphQL Server
-builder.Services.AddGraphQLServer()
-    .AddQueryType<ApiQueryType>()
-    .AddMutationType<ApiMutationType>()
-    .AddSubscriptionType<ApiSubscriptionType>() 
-    .AddType<BookType>()
-    .AddType<UserType>()
-    .AddType<BorrowingType>()
-    .AddType<UserType.DashboardCountsType>()
-    .AddInMemorySubscriptions()
-    .AddAuthorization();
 
 var app = builder.Build();
-app.UseWebSockets(); // Ensure WebSockets are enabled
-app.UseRouting(); // Add routing middleware before mapping endpoints
+
+app.UseWebSockets();
+app.UseRouting();
 
 // CORS configuration
 app.UseCors(builder =>
@@ -84,7 +33,8 @@ app.UseCors(builder =>
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapGraphQL(); // Map GraphQL endpoint
+app.MapGraphQL();
+
 // Configure middleware
 if (app.Environment.IsDevelopment())
 {
