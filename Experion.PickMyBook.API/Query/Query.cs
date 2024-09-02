@@ -134,4 +134,19 @@ public class Query
         return await requestService.GetAllRequestsAsync();
 
     }
+
+    public async Task<List<UserBooksReadInfoDTO>> GetBooksReadByUser(int userId)
+    {
+        using var scope = _serviceScopeFactory.CreateScope();
+        var borrowingService = scope.ServiceProvider.GetRequiredService<IBorrowingService>();
+        return await borrowingService.GetBooksReadByUserAsync(userId);
+    }
+
+    public async Task<IEnumerable<UserRequestsDTO>> GetUserRequests (int userId)
+    {
+        using var scope = _serviceScopeFactory.CreateScope();
+        var requestService = scope.ServiceProvider.GetRequiredService<IRequestService>();
+        return await requestService.GetRequestsByUserAsync(userId);
+
+    }
 }

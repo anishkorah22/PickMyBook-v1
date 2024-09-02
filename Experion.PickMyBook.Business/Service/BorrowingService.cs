@@ -3,6 +3,7 @@ using Experion.PickMyBook.Data;
 using Experion.PickMyBook.Data.IRepository;
 using Experion.PickMyBook.Infrastructure;
 using Experion.PickMyBook.Infrastructure.Models;
+using Experion.PickMyBook.Infrastructure.Models.DTO;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -137,6 +138,36 @@ namespace Experion.PickMyBook.Business.Service
         {
             return await _borrowingsRepository.GetBorrowingsByUserIdAsync(userId);
         }
+
+       public async Task<List<UserBooksReadInfoDTO>> GetBooksReadByUserAsync(int userId)
+{
+    var user = await _context.Users.FindAsync(userId);
+    if (user == null)
+    {
+        throw new ArgumentException("User not found.");
+    }
+
+    var borrowings = await _context.Borrowings
+        .Where(b => b.UserId == userId && b.Status == BorrowingStatus.Returned)
+        .Include(b => b.Book) // Ensure Book entity is loaded
+        .ToListAsync();
+
+    var booksRead = borrowings
+        .Select(b => new UserBooksReadInfoDTO
+        {
+            BooksReadCount = borrowings.Count(br => br.Status == BorrowingStatus.Returned),
+            Title = b.Book?.Title ?? "Unknown Title", // Handle potential nulls
+            Author = b.Book?.Author ?? "Unknown Author", // Handle potential nulls
+            BorrowDate = b.BorrowDate.HasValue ? DateOnly.FromDateTime(b.BorrowDate.Value) : DateOnly.MinValue,
+            ReturnDate = b.ReturnDate.HasValue ? DateOnly.FromDateTime(b.ReturnDate.Value) : DateOnly.MinValue
+
+        })
+        .ToList();
+
+    return booksRead;
+}
+
+
 
     }
 }
