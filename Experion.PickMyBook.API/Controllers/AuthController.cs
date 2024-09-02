@@ -11,6 +11,8 @@ using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Experion.PickMyBook.Infrastructure;
+using Experion.PickMyBook.API.Options;
+using Microsoft.Extensions.Options;
 
 namespace Experion.PickMyBook.Controllers
 {
@@ -19,7 +21,7 @@ namespace Experion.PickMyBook.Controllers
     public class AuthController : ControllerBase
     {
         private readonly LibraryContext _context;
-        private readonly IConfiguration _configuration;
+        private readonly JwtOptions _jwtOptions;
 
         public class EnumerableToStringArrayConverter : ValueConverter<IEnumerable<string>, string[]>
         {
@@ -30,10 +32,10 @@ namespace Experion.PickMyBook.Controllers
             {
             }
         }
-        public AuthController(LibraryContext context, IConfiguration configuration)
+        public AuthController(LibraryContext context, IOptions<JwtOptions> jwtOptions)
         {
             _context = context;
-            _configuration = configuration;
+            _jwtOptions = jwtOptions.Value;
         }
 
         [AllowAnonymous]
@@ -77,7 +79,7 @@ namespace Experion.PickMyBook.Controllers
         private string GenerateJwtToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+            var key = Encoding.ASCII.GetBytes(_jwtOptions.Key);
 
             // Convert IEnumerable<string> to IList<string> or directly use ToList() for string.Join
             var rolesList = user.Roles.ToList(); // Convert to List to ensure it's in the expected format
@@ -90,6 +92,8 @@ namespace Experion.PickMyBook.Controllers
             new Claim(ClaimTypes.Role, string.Join(",", rolesList)), // Use the converted list
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
+                Issuer = _jwtOptions.Issuer,
+                Audience = _jwtOptions.Audience,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
