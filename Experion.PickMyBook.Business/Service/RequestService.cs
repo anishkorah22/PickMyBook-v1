@@ -1,6 +1,7 @@
 ﻿using Experion.PickMyBook.Data;
 using Experion.PickMyBook.Data.IRepository;
 using Experion.PickMyBook.Infrastructure.Models;
+using Experion.PickMyBook.Infrastructure.Models.DTO;
 
 public class RequestService : IRequestService
 {
@@ -26,6 +27,7 @@ public class RequestService : IRequestService
             RequestType = r.RequestType.ToString()
         });
     }
+
 
     public async Task<Request> CreateBorrowRequestAsync(int bookId, int userId)
     {
@@ -111,6 +113,23 @@ public class RequestService : IRequestService
 
         await _requestRepository.UpdateRequestAsync(request);
         return request;
+
+    public async Task<IEnumerable<UserRequestsDTO>> GetRequestsByUserAsync(int userId)
+    {
+        var requests = await _requestRepository.GetAllRequestsAsync();
+
+        var userRequests = requests
+            .Where(r => r.UserId == userId)
+            .Select(r => new UserRequestsDTO
+            {
+                BookTitle = r.Book?.Title ?? "Unknown Title",
+                RequestType = r.RequestType.ToString(),
+                RequestStatus = r.Status.ToString(),
+                Message = r.Message ?? "No message"
+            })
+            .ToList();
+
+        return userRequests;
     }
 
 }

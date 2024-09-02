@@ -5,6 +5,7 @@ using Experion.PickMyBook.Data;
 using Experion.PickMyBook.Business.Services;
 using Experion.PickMyBook.Business.Service;
 using Experion.PickMyBook.Infrastructure;
+using Experion.PickMyBook.Infrastructure.Models.DTO;
 
 public class BorrowingType : ObjectType<Borrowings>
 {
@@ -26,5 +27,17 @@ public class BorrowingType : ObjectType<Borrowings>
             return context.Books.FirstOrDefault(b => b.BookId == borrowing.BookId);
         }
 
+    }
+
+    public class UserBooksReadInfoType : ObjectType<UserBooksReadInfoDTO>
+    {
+        protected override void Configure(IObjectTypeDescriptor<UserBooksReadInfoDTO> descriptor)
+        {
+            descriptor.Field(b => b.BooksReadCount).Type<NonNullType<IntType>>();
+            descriptor.Field(b => b.Title).Type<NonNullType<StringType>>();
+            descriptor.Field(b => b.Author).Type<NonNullType<StringType>>();
+            descriptor.Field(b => b.BorrowDate).Type<NonNullType<DateTimeType>>();
+            descriptor.Field(b => b.ReturnDate).Type<NonNullType<DateTimeType>>();
+        }
     }
 }
