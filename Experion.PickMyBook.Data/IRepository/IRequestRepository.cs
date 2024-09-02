@@ -8,4 +8,7 @@ public interface IRequestRepository
     Task<Request> GetRequestByIdAsync(int requestId);
     Task UpdateRequestAsync(Request request);
     Task AddBorrowingAsync(Borrowings borrowing);
+    Task<Borrowings> GetBorrowingByBookAndUserAsync(int bookId, int userId);
+    Task UpdateBorrowingAsync(Borrowings borrowing);
+
 }

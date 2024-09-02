@@ -75,4 +75,17 @@ public class RequestRepository : IRequestRepository
         await _context.SaveChangesAsync();
     }
 
+    public async Task<Borrowings> GetBorrowingByBookAndUserAsync(int bookId, int userId)
+    {
+        return await _context.Borrowings
+            .FirstOrDefaultAsync(b => b.BookId == bookId && b.UserId == userId && b.Status == BorrowingStatus.Borrowed);
+    }
+    public async Task UpdateBorrowingAsync(Borrowings borrowing)
+    {
+        _context.Borrowings.Update(borrowing);
+        await _context.SaveChangesAsync();
+    }
+
+    
+
 }

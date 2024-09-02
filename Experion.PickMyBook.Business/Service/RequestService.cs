@@ -1,12 +1,15 @@
-﻿using Experion.PickMyBook.Infrastructure.Models;
+﻿using Experion.PickMyBook.Data;
+using Experion.PickMyBook.Data.IRepository;
+using Experion.PickMyBook.Infrastructure.Models;
 
 public class RequestService : IRequestService
 {
     private readonly IRequestRepository _requestRepository;
-
-    public RequestService(IRequestRepository requestRepository)
+    private readonly IBookRepository _bookRepository;
+    public RequestService(IRequestRepository requestRepository, IBookRepository BookRepository)
     {
         _requestRepository = requestRepository;
+        _bookRepository = BookRepository;
     }
 
     public async Task<IEnumerable<RequestDTO>> GetAllRequestsAsync()
@@ -56,6 +59,18 @@ public class RequestService : IRequestService
                     ReturnDate = DateTime.UtcNow.AddDays(14),
                     Status = BorrowingStatus.Borrowed
                 });
+
+                // Update the available copies
+                var book = await _bookRepository.GetBookByIdAsync(request.BookId)
+                            ?? throw new InvalidOperationException("Book not found.");
+
+                if (book.AvailableCopies <= 0)
+                {
+                    throw new InvalidOperationException("No available copies left.");
+                }
+
+                book.AvailableCopies--;
+                await _bookRepository.UpdateBookAsync(book);
                 break;
 
             case RequestType.ReturnRequest:
@@ -63,10 +78,17 @@ public class RequestService : IRequestService
                 var borrowing = await _requestRepository.GetBorrowingByBookAndUserAsync(request.BookId, request.UserId)
                                 ?? throw new InvalidOperationException("No borrowing record found for this book and user.");
 
-                // Update the borrowing record
+                // Update the borrowing record to returned
                 borrowing.Status = BorrowingStatus.Returned;
                 borrowing.ReturnDate = DateTime.UtcNow;
                 await _requestRepository.UpdateBorrowingAsync(borrowing);
+
+                // Update the available copies
+                var returnedBook = await _bookRepository.GetBookByIdAsync(request.BookId)
+                                   ?? throw new InvalidOperationException("Book not found.");
+
+                returnedBook.AvailableCopies++;
+                await _bookRepository.UpdateBookAsync(returnedBook);
                 break;
 
             default:
