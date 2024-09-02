@@ -98,8 +98,6 @@ public class RequestService : IRequestService
         return request;
     }
 
-
-
     public async Task<Request> DeclineRequestAsync(int requestId, string message)
     {
         var request = await _requestRepository.GetRequestByIdAsync(requestId);
