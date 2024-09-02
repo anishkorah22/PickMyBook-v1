@@ -1,4 +1,5 @@
 ﻿using HotChocolate.Types;
+using static BorrowingType;
 using static UserType;
 
 namespace Experion.PickMyBook.API.GraphQLTypes
@@ -39,6 +40,16 @@ namespace Experion.PickMyBook.API.GraphQLTypes
                 .Type<ListType<RequestType>>()
                 .Name("requests");
 
+
+            descriptor.Field(q => q.GetBooksReadByUser(default))
+           .Argument("userId", a => a.Type<NonNullType<IntType>>())
+           .Type<ListType<UserBooksReadInfoType>>()
+           .Name("booksReadByUser");
+
+            descriptor.Field(q => q.GetUserRequests(default))
+               .Argument("userId", a => a.Type<NonNullType<IntType>>()) 
+               .Type<ListType<UserRequestsType>>() 
+               .Name("userRequests");
 
         }
     }
