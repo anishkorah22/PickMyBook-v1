@@ -40,6 +40,27 @@ namespace Experion.PickMyBook.API.GraphQLTypes
                 .Argument("userId", a => a.Type<NonNullType<IntType>>())
                 .Argument("isDeleted", a => a.Type<BooleanType>());
 
+            descriptor.Field(m => m.CreateBorrowRequestAsync(default!, default!))
+                 .Type<RequestType>()
+                 .Argument("bookId", a => a.Type<NonNullType<IntType>>())
+                 .Argument("userId", a => a.Type<NonNullType<IntType>>());
+
+            descriptor.Field(m => m.CreateReturnRequestAsync(default!, default!))
+                .Type<RequestType>()
+                .Name("createReturnRequestAsync")
+                .Argument("bookId", a => a.Type<NonNullType<IntType>>())
+                .Argument("userId", a => a.Type<NonNullType<IntType>>());
+
+            descriptor.Field(m => m.ApproveRequestAsync(default!))
+                .Type<RequestType>()
+                .Argument("requestId", a => a.Type<NonNullType<IntType>>())
+                .Name("approveRequest");
+
+            descriptor.Field(m => m.DeclineRequestAsync(default!,default!))
+                .Type<RequestType>()
+                .Argument("requestId", a => a.Type<NonNullType<IntType>>())
+                .Argument("message", a=> a.Type<NonNullType<StringType>>())
+                .Name("declineRequest");
 
         }
     }

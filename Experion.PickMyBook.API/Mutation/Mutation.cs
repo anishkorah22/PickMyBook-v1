@@ -43,7 +43,23 @@ public class Mutation
     public Task<Borrowings> UpdateBorrowing([Service] LibraryContext context, Borrowings borrowing) => _borrowingService.UpdateBorrowingAsync(borrowing);
 
     public Task<Borrowings> ReturnBook([Service] LibraryContext context, int userId, int bookId) => _borrowingService.ReturnBookAsync(userId, bookId);
+    public Task<Request> CreateBorrowRequestAsync(int bookId, int userId)
+    {
+        return _requestService.CreateBorrowRequestAsync(bookId, userId);
+    }
+    public async Task<Request> CreateReturnRequestAsync(int bookId, int userId)
+    {
+        return await _requestService.CreateReturnRequestAsync(bookId, userId);
+    }
+    public async Task<Request> ApproveRequestAsync(int requestId)
+    {
+        return await _requestService.ApproveRequestAsync(requestId);
+    }
 
+    public async Task<Request> DeclineRequestAsync(int requestId, string message)
+    {
+        return await _requestService.DeclineRequestAsync(requestId, message);
+    }
     public async Task<User> CreateUser([Service] LibraryContext context, string userName, IEnumerable<string> roles)
     {
         var newUser = new User
