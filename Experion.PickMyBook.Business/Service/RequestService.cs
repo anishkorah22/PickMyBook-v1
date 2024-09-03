@@ -114,6 +114,7 @@ public class RequestService : IRequestService
         await _requestRepository.UpdateRequestAsync(request);
         return request;
 
+    }
     public async Task<IEnumerable<UserRequestsDTO>> GetRequestsByUserAsync(int userId)
     {
         var requests = await _requestRepository.GetAllRequestsAsync();
