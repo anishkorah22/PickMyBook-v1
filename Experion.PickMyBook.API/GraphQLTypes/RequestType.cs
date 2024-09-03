@@ -9,6 +9,7 @@ public class RequestType : ObjectType<RequestDTO>
         descriptor.Field(r => r.BookTitle).Name("bookTitle");
         descriptor.Field(r => r.Username).Name("username");
         descriptor.Field(r => r.RequestType).Name("requestType");
+     
     }
 }
 
