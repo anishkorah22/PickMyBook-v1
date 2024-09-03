@@ -37,7 +37,7 @@ namespace Experion.PickMyBook.API.GraphQLTypes
                 .Name("getBorrowingsByUserId");
 
             descriptor.Field(q => q.GetAllRequestsAsync())
-                .Type<ListType<RequestType>>()
+                .Type<ListType<RequestDTOType>>()
                 .Name("requests");
 
 

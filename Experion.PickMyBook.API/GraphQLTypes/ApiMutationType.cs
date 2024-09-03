@@ -7,24 +7,24 @@ namespace Experion.PickMyBook.API.GraphQLTypes
     {
         protected override void Configure(IObjectTypeDescriptor<Mutation> descriptor)
         {
-            descriptor.Field(f => f.CreateUser(default!, default!, default!))
+            descriptor.Field(f => f.CreateUser(default!,  default!))
                 .Type<UserType>();
 
-            descriptor.Field(f => f.AddBook(default!, default!))
+            descriptor.Field(f => f.AddBook(default!))
                 .Type<BookType>();
 
-            descriptor.Field(f => f.UpdateBook(default!, default!))
+            descriptor.Field(f => f.UpdateBook(default!))
                 .Type<BookType>();
 
-            descriptor.Field(m => m.BorrowBook(default!, default!, default!))
+            descriptor.Field(m => m.BorrowBook(default!, default!))
                 .Type<BorrowingType>()
                 .Argument("bookId", a => a.Type<NonNullType<IntType>>())
                 .Argument("userId", a => a.Type<NonNullType<IntType>>());
 
-            descriptor.Field(m => m.UpdateBorrowing(default!, default!))
+            descriptor.Field(m => m.UpdateBorrowing(default!))
                 .Type<BorrowingType>();
 
-            descriptor.Field(f => f.UpdateUser(default!, default!))
+            descriptor.Field(f => f.UpdateUser(default!))
               .Type<UserType>()
               .Name("updateUser");
 
