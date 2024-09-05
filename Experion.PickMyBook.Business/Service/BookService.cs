@@ -6,18 +6,29 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Hosting;
+using HotChocolate.Types;
 
 public class BookService : IBookService
 {
     private readonly IBookRepository _bookRepository;
+    private readonly IWebHostEnvironment _environment;
 
-    public BookService(IBookRepository bookRepository)
+    public BookService(IBookRepository bookRepository, IWebHostEnvironment environment)
     {
         _bookRepository = bookRepository;
+        _environment = environment;
+        if (string.IsNullOrEmpty(_environment.WebRootPath))
+        {
+            throw new InvalidOperationException("WebRootPath is not configured.");
+        }
     }
 
-    public async Task<Book> AddBookAsync(AddBooksDTO dto)
+    public async Task<Book> AddBookAsync(AddBooksDTO dto, IEnumerable<IFile>? files)
     {
+
         var book = new Book
         {
             Title = dto.Title,
@@ -27,12 +38,47 @@ public class BookService : IBookService
             AvailableCopies = dto.AvailableCopies,
             PublishedYear = dto.PublishedYear,
             Genre = dto.Genre,
-            CreatedAt = DateTime.UtcNow // Ensure CreatedAt is set
+            CreatedAt = DateTime.UtcNow
         };
+
+        if (files != null && files.Any())
+        {
+            var imageUrls = new List<string>();
+            var uploadPath = Path.Combine(_environment.WebRootPath, "uploads");
+            Console.WriteLine($"WebRootPath: {_environment.WebRootPath}");
+
+
+            if (!Directory.Exists(uploadPath))
+            {
+                Directory.CreateDirectory(uploadPath);
+            }
+
+            foreach (var file in files)
+            {
+                var filePath = Path.Combine(uploadPath, file.Name);
+
+                try
+                {
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+
+                    var url = $"/uploads/{file.Name}";
+                    imageUrls.Add(url);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error uploading file {file.Name}: {ex.Message}");
+                }
+            }
+            book.ImageUrls = imageUrls.ToArray();
+        }
 
         await _bookRepository.AddAsync(book);
         return book;
     }
+
 
     public async Task<Book> UpdateBookAsync(Book book)
     {

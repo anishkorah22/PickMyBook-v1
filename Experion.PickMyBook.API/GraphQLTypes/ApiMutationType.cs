@@ -1,5 +1,7 @@
 ﻿using Experion.PickMyBook.Data;
+using Experion.PickMyBook.Infrastructure.Models.DTO;
 using HotChocolate.Types;
+using Microsoft.VisualBasic.FileIO;
 
 namespace Experion.PickMyBook.API.GraphQLTypes
 {
@@ -10,8 +12,10 @@ namespace Experion.PickMyBook.API.GraphQLTypes
             descriptor.Field(f => f.CreateUser(default!,  default!))
                 .Type<UserType>();
 
-            descriptor.Field(f => f.AddBook(default!))
-                .Type<BookType>();
+            descriptor.Field(f => f.AddBook(default!, default!))
+                .Type<BookType>()
+                .Argument("dto", a => a.Type<NonNullType<InputObjectType<AddBooksDTO>>>())
+                .Argument("files", a => a.Type<NonNullType<ListType<NonNullType<UploadType>>>>());
 
             descriptor.Field(f => f.UpdateBook(default!))
                 .Type<BookType>();
