@@ -12,6 +12,7 @@ using Experion.PickMyBook.Data.IRepository;
 using Experion.PickMyBook.Business.Services;
 using Experion.PickMyBook.API.Options;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Hosting;
 
 
 namespace Experion.PickMyBook.API.Extensions
@@ -77,6 +78,8 @@ namespace Experion.PickMyBook.API.Extensions
 
             services.AddScoped<LibraryContext>();
             services.AddScoped<Query>();
+
+            
             return services;
         }
 
@@ -90,8 +93,10 @@ namespace Experion.PickMyBook.API.Extensions
                 .AddType<UserType>()
                 .AddType<BorrowingType>()
                 .AddType<UserType.DashboardCountsType>()
+                .AddType<UploadType>()
                 .AddInMemorySubscriptions()
                 .AddAuthorization();
+            
 
             return services;
         }

@@ -31,4 +31,17 @@
     <ProjectReference Include="..\Experion.PickMyBook.Infrastructure\Experion.PickMyBook.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\gopika.vinod\Desktop\PickMyBook-v1\Experion.PickMyBook.API\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\gopika.vinod\Desktop\PickMyBook-v1\Experion.PickMyBook.API\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+    <Folder Include="wwwroot\uploads\" />
+  </ItemGroup>
+
 </Project>
