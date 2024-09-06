@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="EPPlus" Version="7.3.1" />
+    <PackageReference Include="Google.Protobuf" Version="3.28.0" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.65.0" />
+    <PackageReference Include="Grpc.Net.ClientFactory" Version="2.65.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.66.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="HotChocolate.AspNetCore" Version="13.9.11" />
     <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="13.9.11" />
     <PackageReference Include="HotChocolate.AspNetCore.Playground" Version="10.5.5" />
@@ -30,6 +38,10 @@
     <ProjectReference Include="..\Experion.PickMyBook.Business\Experion.PickMyBook.Business.csproj" />
     <ProjectReference Include="..\Experion.PickMyBook.Infrastructure\Experion.PickMyBook.Infrastructure.csproj" />
   </ItemGroup>
+	<ItemGroup>
+		<Protobuf Include="Protos\upload.proto" GrpcServices="Client" />
+	</ItemGroup>
+
 
   <ItemGroup>
     <EditorConfigFiles Remove="C:\Users\gopika.vinod\Desktop\PickMyBook-v1\Experion.PickMyBook.API\.editorconfig" />

@@ -15,6 +15,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Hosting;
 
 
+
 namespace Experion.PickMyBook.API.Extensions
 {
     public static class ServiceCollectionExtensions
@@ -79,7 +80,6 @@ namespace Experion.PickMyBook.API.Extensions
             services.AddScoped<LibraryContext>();
             services.AddScoped<Query>();
 
-            
             return services;
         }
 

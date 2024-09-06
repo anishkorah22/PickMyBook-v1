@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35027.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Experion.PickMyBook.Infrastructure", "Experion.PickMyBook.Infrastructure\Experion.PickMyBook.Infrastructure.csproj", "{DC2B7F41-F879-4652-9295-729189CA4EFF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Experion.PickMyBook.Infrastructure", "Experion.PickMyBook.Infrastructure\Experion.PickMyBook.Infrastructure.csproj", "{DC2B7F41-F879-4652-9295-729189CA4EFF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Experion.PickMyBook.Data", "Experion.PickMyBook.Data\Experion.PickMyBook.Data.csproj", "{0030088B-FF65-4EFE-8B8D-32F1B09D80B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Experion.PickMyBook.Data", "Experion.PickMyBook.Data\Experion.PickMyBook.Data.csproj", "{0030088B-FF65-4EFE-8B8D-32F1B09D80B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Experion.PickMyBook.Business", "Experion.PickMyBook.Business\Experion.PickMyBook.Business.csproj", "{3B362E0C-9B05-4F9A-941E-0860D3048E76}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Experion.PickMyBook.Business", "Experion.PickMyBook.Business\Experion.PickMyBook.Business.csproj", "{3B362E0C-9B05-4F9A-941E-0860D3048E76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Experion.PickMyBook.API", "Experion.PickMyBook.API\Experion.PickMyBook.API.csproj", "{A9004E05-EF65-4DBC-8367-4DB57CF10E25}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Experion.PickMyBook.API", "Experion.PickMyBook.API\Experion.PickMyBook.API.csproj", "{A9004E05-EF65-4DBC-8367-4DB57CF10E25}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Experion.PickMyBook.GrpcService", "Experion.PickMyBook.GrpcService\Experion.PickMyBook.GrpcService.csproj", "{DF8A4466-0832-4329-B220-32D34F40353C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{A9004E05-EF65-4DBC-8367-4DB57CF10E25}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9004E05-EF65-4DBC-8367-4DB57CF10E25}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9004E05-EF65-4DBC-8367-4DB57CF10E25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF8A4466-0832-4329-B220-32D34F40353C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF8A4466-0832-4329-B220-32D34F40353C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF8A4466-0832-4329-B220-32D34F40353C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF8A4466-0832-4329-B220-32D34F40353C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
