@@ -12,6 +12,8 @@ using Experion.PickMyBook.Data.IRepository;
 using Experion.PickMyBook.Business.Services;
 using Experion.PickMyBook.API.Options;
 using Microsoft.Extensions.Options;
+/*using GrpcLibraryService;
+using Experion.PickMyBook.API.Controllers;*/
 
 
 namespace Experion.PickMyBook.API.Extensions
@@ -77,6 +79,14 @@ namespace Experion.PickMyBook.API.Extensions
 
             services.AddScoped<LibraryContext>();
             services.AddScoped<Query>();
+           /* services.AddGrpcClient<LibraryService.LibraryServiceClient>(options =>
+            {
+                options.Address = new Uri("https://localhost:7131");
+            });
+
+            services.AddScoped<GrpcLibraryController>();*/ // Register the gRPC controller
+
+
             return services;
         }
 
