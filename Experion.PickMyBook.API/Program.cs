@@ -13,7 +13,9 @@ builder.Services
     .AddApplicationAuthentication(builder.Configuration)
     .AddApplicationDbContext()
     .AddApplicationServices()
-    .AddApplicationGraphQL();
+    .AddApplicationGraphQL()
+    .AddRazorPages();
+    
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
@@ -51,7 +53,17 @@ if (app.Environment.IsDevelopment())
     app.UsePlayground(new PlaygroundOptions { QueryPath = "/graphql", Path = "/playground" });
 }
 
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
+}
+
 app.UseHttpsRedirection();
+app.UseStaticFiles(); // Ensure static files middleware is enabled
+
+app.UseRouting();
+app.MapRazorPages();
 app.MapControllers();
 
 app.Run();

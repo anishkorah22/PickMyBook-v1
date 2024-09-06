@@ -41,8 +41,11 @@ namespace Experion.PickMyBook.Infrastructure
 
             modelBuilder.Entity<Borrowings>()
                 .HasKey(b => new { b.BookId, b.UserId });
+/*
+            modelBuilder.Entity<Request>()
+               .HasKey(b => new { b.BookId, b.UserId });*/
 
-           
+
             modelBuilder.Entity<Request>()
                 .HasOne(r => r.Book)
                 .WithMany()

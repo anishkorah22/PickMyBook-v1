@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option csharp_namespace = "BookService";
+
+service BookUploadService {
+    rpc UploadBooks(BookUploadRequest) returns (BookUploadResponse);
+}
+
+message BookUploadRequest {
+    bytes file = 1;  // The Excel file as a byte array
+}
+
+message BookUploadResponse {
+    bool success = 1;
+    string message = 2;
+}

@@ -60,9 +60,9 @@ namespace Experion.PickMyBook.Data
         public async Task<User> GetByUserIdAsync(int id)
         {
             return await _context.Users
-                .Where(u => u.UserId == id && !u.IsDeleted)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(u => u.UserId == id);
         }
+
 
         public async Task UpdateUserAsync(User user)
         {

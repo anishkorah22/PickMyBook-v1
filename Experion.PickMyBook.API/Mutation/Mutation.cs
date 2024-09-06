@@ -11,41 +11,93 @@ using System.Threading.Tasks;
 
 public class Mutation
 {
-    private readonly IBookService _bookService;
-    private readonly IUserService _userService;
-    private readonly IBorrowingService _borrowingService;
-    private readonly IRequestService _requestService;
-    private readonly ITopicEventSender _eventSender;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
-    public Mutation(IBookService bookService, IUserService userService, IBorrowingService borrowingService, IRequestService requestService, ITopicEventSender eventSender)
+    public Mutation(IServiceScopeFactory serviceScopeFactory)
     {
-        _bookService = bookService;
-        _userService = userService;
-        _borrowingService = borrowingService;
-        _requestService = requestService;
-        _eventSender = eventSender;
+        _serviceScopeFactory = serviceScopeFactory;
     }
 
-    public Task<Book> AddBook([Service] LibraryContext context, AddBooksDTO dto) => _bookService.AddBookAsync(dto);
+    public async Task<Book> AddBook(AddBooksDTO dto, IEnumerable<IFile> files)
+    {
+        using var scope = _serviceScopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetService<LibraryContext>();
+        var bookService = scope.ServiceProvider.GetService<IBookService>();
+        return await bookService.AddBookAsync(dto, files);
+    }
 
-    public Task<Book> UpdateBook([Service] LibraryContext context, Book book) => _bookService.UpdateBookAsync(book);
+    public async Task<Book> UpdateBook(Book book)
+    {
+        using var scope = _serviceScopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetService<LibraryContext>();
+        var bookService = scope.ServiceProvider.GetService<IBookService>();
+        return await bookService.UpdateBookAsync(book);
+    }
 
     [Authorize(Roles = new[] { "Admin" })]
-    public async Task<User> AddUser([Service] LibraryContext context, User user)
+    public async Task<User> AddUser(User user)
     {
+        using var scope = _serviceScopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetService<LibraryContext>();
         context.Users.Add(user);
         await context.SaveChangesAsync();
         return user;
     }
 
-    public Task<Borrowings> BorrowBook([Service] LibraryContext context, int userId, int bookId) => _borrowingService.BorrowBookAsync(userId, bookId);
-
-    public Task<Borrowings> UpdateBorrowing([Service] LibraryContext context, Borrowings borrowing) => _borrowingService.UpdateBorrowingAsync(borrowing);
-
-    public Task<Borrowings> ReturnBook([Service] LibraryContext context, int userId, int bookId) => _borrowingService.ReturnBookAsync(userId, bookId);
-
-    public async Task<User> CreateUser([Service] LibraryContext context, string userName, IEnumerable<string> roles)
+    public async Task<Borrowings> BorrowBook(int userId, int bookId)
     {
+        using var scope = _serviceScopeFactory.CreateScope();
+        var borrowingService = scope.ServiceProvider.GetService<IBorrowingService>();
+        return await borrowingService.BorrowBookAsync(userId, bookId);
+    }
+
+    public async Task<Borrowings> UpdateBorrowing(Borrowings borrowing)
+    {
+        using var scope = _serviceScopeFactory.CreateScope();
+        var borrowingService = scope.ServiceProvider.GetService<IBorrowingService>();
+        return await borrowingService.UpdateBorrowingAsync(borrowing);
+    }
+
+    public async Task<Borrowings> ReturnBook(int userId, int bookId)
+    {
+        using var scope = _serviceScopeFactory.CreateScope();
+        var borrowingService = scope.ServiceProvider.GetService<IBorrowingService>();
+        return await borrowingService.ReturnBookAsync(userId, bookId);
+    }
+
+    public async Task<Request> CreateBorrowRequestAsync(int bookId, int userId)
+    {
+        using var scope = _serviceScopeFactory.CreateScope();
+        var requestService = scope.ServiceProvider.GetService<IRequestService>();
+        return await requestService.CreateBorrowRequestAsync(bookId, userId);
+    }
+
+    public async Task<Request> CreateReturnRequestAsync(int bookId, int userId)
+    {
+        using var scope = _serviceScopeFactory.CreateScope();
+        var requestService = scope.ServiceProvider.GetService<IRequestService>();
+        return await requestService.CreateReturnRequestAsync(bookId, userId);
+    }
+
+    public async Task<Request> ApproveRequestAsync(int requestId)
+    {
+        using var scope = _serviceScopeFactory.CreateScope();
+        var requestService = scope.ServiceProvider.GetService<IRequestService>();
+        return await requestService.ApproveRequestAsync(requestId);
+    }
+
+    public async Task<Request> DeclineRequestAsync(int requestId, string message)
+    {
+        using var scope = _serviceScopeFactory.CreateScope();
+        var requestService = scope.ServiceProvider.GetService<IRequestService>();
+        return await requestService.DeclineRequestAsync(requestId, message);
+    }
+
+    public async Task<User> CreateUser(string userName, IEnumerable<string> roles)
+    {
+        using var scope = _serviceScopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetService<LibraryContext>();
+        var userService = scope.ServiceProvider.GetService<IUserService>();
         var newUser = new User
         {
             UserName = userName,
@@ -59,8 +111,11 @@ public class Mutation
         return newUser;
     }
 
-    public async Task<User> UpdateUser([Service] LibraryContext context, User user)
+    public async Task<User> UpdateUser(User user)
     {
+        using var scope = _serviceScopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetService<LibraryContext>();
+        var userService = scope.ServiceProvider.GetService<IUserService>();
         var existingUser = await context.Users.FindAsync(user.UserId);
 
         if (existingUser == null)
@@ -81,19 +136,24 @@ public class Mutation
 
     public async Task<Book> UpdateBookStatusAsync(int bookId, bool isDeleted)
     {
-        var updatedBook = await _bookService.UpdateBookStatusAsync(bookId, isDeleted);
+        using var scope = _serviceScopeFactory.CreateScope();
+        var bookService = scope.ServiceProvider.GetService<IBookService>();
+        var eventSender = scope.ServiceProvider.GetService<ITopicEventSender>();
+        var updatedBook = await bookService.UpdateBookStatusAsync(bookId, isDeleted);
 
-        await _eventSender.SendAsync("OnBookStatusChanged", updatedBook);
+        await eventSender.SendAsync("OnBookStatusChanged", updatedBook);
 
         return updatedBook;
     }
     public async Task<User> UpdateUserStatusAsync(int userId, bool isDeleted)
     {
-        var updatedUser = await _userService.UpdateUserStatusAsync(userId, isDeleted);
+        using var scope = _serviceScopeFactory.CreateScope();
+        var userService = scope.ServiceProvider.GetService<IUserService>();
+        var eventSender = scope.ServiceProvider.GetService<ITopicEventSender>();
+        var updatedUser = await userService.UpdateUserStatusAsync(userId, isDeleted);
 
-        await _eventSender.SendAsync("OnUserStatusChanged", updatedUser);
+        await eventSender.SendAsync("OnUserStatusChanged", updatedUser);
 
         return updatedUser;
     }
-
 }
