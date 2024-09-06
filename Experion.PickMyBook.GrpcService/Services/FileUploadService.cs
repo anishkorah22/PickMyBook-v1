@@ -110,8 +110,8 @@ namespace Experion.PickMyBook.GrpcService.Services
                         UserName = worksheet.Cells[row, 1].Value?.ToString(),  // Only UserName from Excel
                         Roles = worksheet.Cells[row, 2].Value?.ToString()?.Split(','), // Only Roles from Excel
                         IsDeleted = false, // Generated in API call
-                        CreatedAt = DateTime.UtcNow, // Generated in API call
-                        UpdatedAt = DateTime.UtcNow  // Generated in API call
+                        CreatedAt = DateTime.UtcNow, 
+                        UpdatedAt = DateTime.UtcNow  
                     };
 
                     users.Add(user);
