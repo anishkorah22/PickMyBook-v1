@@ -100,5 +100,31 @@ namespace Experion.PickMyBook.API.Extensions
 
             return services;
         }
+        public static IServiceCollection AddApplicationGrpc(this IServiceCollection services)
+        {
+            services.AddGrpcClient<Upload.FileUploadService.FileUploadServiceClient>(o =>
+            {
+                o.Address = new Uri("https://localhost:7079"); // gRPC server address
+            });
+
+            return services;
+        }
+
+        public static IServiceCollection AddApplicationCors(this IServiceCollection services)
+        {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigins",
+                    builder =>
+                    {
+                        builder.WithOrigins("http://localhost:5173")
+                               .AllowAnyHeader()
+                               .AllowAnyMethod()
+                               .AllowCredentials(); // Allow cookies if needed
+                    });
+            });
+
+            return services;
+        }
     }
 }
