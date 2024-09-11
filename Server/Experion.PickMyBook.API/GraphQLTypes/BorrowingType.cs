@@ -18,8 +18,6 @@ public class BorrowingType : ObjectType<Borrowings>
 
         descriptor.Field(b => b.User)
                   .Type<UserType>();
-        /* descriptor.Field(b => b.User).ResolveWith<BorrowingResolvers>(r => r.GetUser(default!, default!));
-         descriptor.Field(b => b.Book).ResolveWith<BorrowingResolvers>(r => r.GetBook(default!, default!));*/
 
     }
 
@@ -48,19 +46,5 @@ public class BorrowingType : ObjectType<Borrowings>
             descriptor.Field(b => b.ReturnDate).Type<NonNullType<DateTimeType>>();
         }
     }
-    /*public class UserResolvers
-    {
-        public User GetUser([Parent] Borrowings borrowing, [Service] LibraryContext context)
-        {
-            return context.Users.FirstOrDefault(u => u.UserId == borrowing.UserId);
-        }
-    }
-
-    public class BookResolvers
-    {
-        public Book GetBook([Parent] Borrowings borrowing, [Service] LibraryContext context)
-        {
-            return context.Books.FirstOrDefault(b => b.BookId == borrowing.BookId);
-        }
-    }*/
+    
 }
