@@ -88,14 +88,14 @@ namespace Experion.PickMyBook.API.Extensions
             services.AddGraphQLServer()
                 .AddQueryType<ApiQueryType>()
                 .AddMutationType<ApiMutationType>()
-                .AddSubscriptionType<ApiSubscriptionType>()
-                .AddType<BookType>()
+/*                .AddSubscriptionType<ApiSubscriptionType>()
+*/                .AddType<BookType>()
                 .AddType<UserType>()
                 .AddType<BorrowingType>()
                 .AddType<UserType.DashboardCountsType>()
                 .AddType<UploadType>()
-                .AddInMemorySubscriptions()
-                .AddAuthorization();
+/*                .AddInMemorySubscriptions()
+*/                .AddAuthorization();
             
 
             return services;

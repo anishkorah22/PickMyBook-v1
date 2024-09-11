@@ -1,4 +1,4 @@
-﻿namespace Experion.PickMyBook.API.GraphQLTypes
+﻿/*namespace Experion.PickMyBook.API.GraphQLTypes
 {
     public class ApiSubscriptionType : ObjectType<Subscription>
     {
@@ -14,3 +14,4 @@
         }
     }
 }
+*/

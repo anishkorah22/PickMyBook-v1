@@ -103,7 +103,7 @@ namespace Experion.PickMyBook.Controllers
         }
 
 
-        [Authorize]
+       /* [Authorize]
         [HttpGet("getUserInfo")]
         public IActionResult GetUserInfo()
         {
@@ -122,7 +122,7 @@ namespace Experion.PickMyBook.Controllers
                 user.CreatedAt,
                 user.UpdatedAt
             });
-        }
+        }*/
     }
 
     public class RegisterRequest
