@@ -7,7 +7,7 @@ namespace Experion.PickMyBook.Infrastructure.Models
     {
         public int UserId { get; set; }
         public string UserName { get; set; }
-        public IEnumerable<string> Roles { get; set; }
+        public IEnumerable<string> Roles { get; set; }  //enum
         public bool IsDeleted { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
@@ -15,7 +15,7 @@ namespace Experion.PickMyBook.Infrastructure.Models
 
         
     }
-    public static class Roles
+    public static class Roles  //cange the class 
     {
         public const string Admin = "Admin";
         public const string Staff = "Staff";

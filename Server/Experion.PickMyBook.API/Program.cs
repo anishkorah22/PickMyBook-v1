@@ -22,7 +22,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddApplicationCors();
-builder.Services.AddApplicationGrpc();
+builder.Services.AddApplicationGrpc();  
 
 var app = builder.Build();
 

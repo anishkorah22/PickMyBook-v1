@@ -22,3 +22,4 @@ public class Book
     public string[]? ImageUrls { get; set; } = new string[3];
     public ICollection<Borrowings>? Borrowings { get; set; } = new List<Borrowings>();
 }
+
