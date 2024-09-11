@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Experion.PickMyBook.Infrastructure.Models
 {
-    public enum RequestType
+    public enum RequestType  //separat class
     {
         BorrowRequest,
         ReturnRequest
