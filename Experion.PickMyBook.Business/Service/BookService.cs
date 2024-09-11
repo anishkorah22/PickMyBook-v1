@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Hosting;
 using HotChocolate.Types;
+using Experion.PickMyBook.Data;
 
 public class BookService : IBookService
 {
@@ -25,7 +26,10 @@ public class BookService : IBookService
             throw new InvalidOperationException("WebRootPath is not configured.");
         }
     }
-
+    public async Task<IEnumerable<Book>> GetBooksAsync()
+    {
+        return await _bookRepository.GetAllAsync();
+    }
     public async Task<Book> AddBookAsync(AddBooksDTO dto, IEnumerable<IFile>? files)
     {
 

@@ -21,25 +21,15 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddGrpcClient<Upload.FileUploadService.FileUploadServiceClient>(o =>
-{
-    o.Address = new Uri("https://localhost:7079"); // gRPC server address
-});
-
-
+builder.Services.AddApplicationCors();
+builder.Services.AddApplicationGrpc();
 
 var app = builder.Build();
 
 app.UseWebSockets();
 app.UseRouting();
+app.UseCors("AllowSpecificOrigins");
 
-// CORS configuration
-app.UseCors(builder =>
-    builder.WithOrigins("https://localhost:7131")
-           .AllowAnyHeader()
-           .AllowAnyMethod()
-           .AllowCredentials()
-           .WithExposedHeaders("Content-Disposition"));
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -58,6 +48,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles(); // Ensure static files middleware is enabled

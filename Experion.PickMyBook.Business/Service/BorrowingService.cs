@@ -22,6 +22,10 @@ namespace Experion.PickMyBook.Business.Service
             _borrowingsRepository = borrowingsRepository;
         }
 
+        public async Task<IEnumerable<Borrowings>> GetBorrowingsAsync()
+        {
+            return await _borrowingsRepository.GetAllAsync();
+        }
         private decimal CalculateFineAmount(DateTime returnDate, DateTime currentDate)
         {
             var overdueDays = (currentDate - returnDate).Days;

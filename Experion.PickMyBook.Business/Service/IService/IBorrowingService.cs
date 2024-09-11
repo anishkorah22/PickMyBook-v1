@@ -9,6 +9,7 @@ namespace Experion.PickMyBook.Business.Service.IService
 {
     public interface IBorrowingService
     {
+        Task<IEnumerable<Borrowings>> GetBorrowingsAsync();
         Task<Borrowings> BorrowBookAsync(int userId, int bookId);
         Task<Borrowings> UpdateBorrowingAsync(Borrowings borrowing);
         Task<Borrowings> ReturnBookAsync(int userId, int bookId);
