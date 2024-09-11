@@ -20,6 +20,6 @@ public class BookType : ObjectType<Book>
             return context.Borrowings.Where(b => b.BookId == book.BookId);
         }
 
-      
+
     }
 }

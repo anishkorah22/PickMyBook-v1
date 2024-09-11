@@ -18,7 +18,10 @@ namespace Experion.PickMyBook.Data
 
         public async Task<IEnumerable<Borrowings>> GetAllAsync()
         {
-            return await _context.Borrowings.ToListAsync();
+            return await _context.Borrowings
+                .Include(b => b.User) 
+                .Include(b => b.Book) 
+                .ToListAsync();
         }
 
         public async Task<Borrowings> GetByIdAsync(int id)
