@@ -7,7 +7,7 @@ import DashboardTable from '../../components/Dashboard/DashboardTable'
 const StaffDashboard = () => {
   return (
     <>
-      <Box sx={{ display: 'flex', flex: 1, mt: '1em' }}>
+      <Box sx={{ml: "9em"}}>
         <Box
         sx={{
             width:'100%',

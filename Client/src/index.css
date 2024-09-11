@@ -71,4 +71,11 @@ button:focus-visible {
     body{
       font-family: 'Montserrat', sans-serif;
       font-size: bold;
+      background-color: "#rgb(246,239,239)";
+
+    }
+
+    :root{
+     background-color: "#rgb(246,239,239)";
+      ;
     }

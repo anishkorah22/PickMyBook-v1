@@ -29,7 +29,7 @@ const DashboardTable = () => {
 
   return (
     <>
-      <Box sx={{ m: "0em 9em" }}>
+      <Box sx={{ m: "0em 8em"}}>
         <TableContainer>
           <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
             <TableHead>
