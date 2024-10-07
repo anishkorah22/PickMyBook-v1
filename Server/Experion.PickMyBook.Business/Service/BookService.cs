@@ -30,57 +30,30 @@ public class BookService : IBookService
     {
         return await _bookRepository.GetAllAsync();
     }
-    public async Task<Book> AddBookAsync(AddBooksDTO dto, IEnumerable<IFile>? files)
+    public async Task<IEnumerable<Book>> GetAllBooksAsync()
+    {
+        return await _bookRepository.GetBooksAsync();
+    }
+    public async Task<Book> AddBookAsync(Book book)
     {
 
-        var book = new Book
+        var newBook = new Book
         {
-            Title = dto.Title,
-            Author = dto.Author,
-            ISBN = dto.ISBN,
-            Publisher = dto.Publisher,
-            AvailableCopies = dto.AvailableCopies,
-            PublishedYear = dto.PublishedYear,
-            Genre = dto.Genre,
-            CreatedAt = DateTime.UtcNow
+            Title = book.Title,
+            Author = book.Author,
+            ISBN = book.ISBN,
+            Publisher = book.Publisher,
+            AvailableCopies = book.AvailableCopies,
+            PublishedYear = book.PublishedYear,
+            Genre = book.Genre,
+            CreatedAt = DateTime.UtcNow,
+            IsDeleted = false,
         };
 
-        if (files != null && files.Any())
-        {
-            var imageUrls = new List<string>();
-            var uploadPath = Path.Combine(_environment.WebRootPath, "uploads");
-            Console.WriteLine($"WebRootPath: {_environment.WebRootPath}");
+      
 
-
-            if (!Directory.Exists(uploadPath))
-            {
-                Directory.CreateDirectory(uploadPath);
-            }
-
-            foreach (var file in files)
-            {
-                var filePath = Path.Combine(uploadPath, file.Name);
-
-                try
-                {
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await file.CopyToAsync(stream);
-                    }
-
-                    var url = $"/uploads/{file.Name}";
-                    imageUrls.Add(url);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error uploading file {file.Name}: {ex.Message}");
-                }
-            }
-            book.ImageUrls = imageUrls.ToArray();
-        }
-
-        await _bookRepository.AddAsync(book);
-        return book;
+        await _bookRepository.AddAsync(newBook);
+        return newBook;
     }
 
 

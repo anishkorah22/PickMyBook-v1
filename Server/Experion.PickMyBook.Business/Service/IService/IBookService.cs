@@ -12,7 +12,8 @@ namespace Experion.PickMyBook.Business.Service.IService
     public interface IBookService
     {
         Task<IEnumerable<Book>> GetBooksAsync();
-        Task<Book> AddBookAsync(AddBooksDTO dto, IEnumerable<IFile>? files);
+        Task<IEnumerable<Book>> GetAllBooksAsync();
+        Task<Book> AddBookAsync(Book book);
         Task<Book> UpdateBookAsync(Book book);
         Task<int> GetTotalBooksCountAsync();
         Task<Book> UpdateBookStatusAsync(int bookId, bool isDeleted);

@@ -23,6 +23,12 @@ namespace Experion.PickMyBook.Data
                 .Where(user => !user.IsDeleted)
                 .ToListAsync();
         }
+        public async Task<IEnumerable<User>> GetUsersAsync()
+        {
+
+            return await _context.Users
+                .ToListAsync();
+        }
 
         public async Task<User> GetByIdAsync(int id)
         {

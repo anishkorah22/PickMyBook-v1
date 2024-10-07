@@ -18,12 +18,12 @@ public class Mutation
         _serviceScopeFactory = serviceScopeFactory;
     }
 
-    public async Task<Book> AddBook(AddBooksDTO dto, IEnumerable<IFile> files)
+    public async Task<Book> AddBook(Book book)
     {
         using var scope = _serviceScopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetService<LibraryContext>();
         var bookService = scope.ServiceProvider.GetService<IBookService>();
-        return await bookService.AddBookAsync(dto, files);
+        return await bookService.AddBookAsync(book);
     }
 
     public async Task<Book> UpdateBook(Book book)

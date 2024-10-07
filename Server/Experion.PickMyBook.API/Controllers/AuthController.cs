@@ -64,17 +64,23 @@ namespace Experion.PickMyBook.Controllers
         }
 
         // Endpoint to authenticate and issue a JWT token
+        // Endpoint to authenticate and issue a JWT token
         [AllowAnonymous]
         [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody] string email)
+        public IActionResult Authenticate([FromBody] LoginRequest request)
         {
-            var user = _context.Users.FirstOrDefault(u => u.UserName == email);
+            if (string.IsNullOrEmpty(request.Email))
+                return BadRequest("Email is required.");
+
+            var user = _context.Users.FirstOrDefault(u => u.UserName == request.Email);
 
             if (user == null || user.IsDeleted)
                 return Unauthorized("Invalid credentials");
 
             var token = GenerateJwtToken(user);
-            return Ok(new { token });
+
+            // Return token and userId in the response
+            return Ok(new { token, userId = user.UserId });
         }
 
         private string GenerateJwtToken(User user)
@@ -103,26 +109,26 @@ namespace Experion.PickMyBook.Controllers
         }
 
 
-       /* [Authorize]
-        [HttpGet("getUserInfo")]
-        public IActionResult GetUserInfo()
-        {
-            var userName = User.Identity.Name;
-            var user = _context.Users.FirstOrDefault(u => u.UserName == userName);
+        /*  [Authorize]
+          [HttpGet("getUserInfo")]
+          public IActionResult GetUserInfo()
+          {
+              var userName = User.Identity.Name;
+              var user = _context.Users.FirstOrDefault(u => u.UserName == userName);
 
-            if (user == null)
-                return NotFound("User not found");
+              if (user == null)
+                  return NotFound("User not found");
 
-            return Ok(new
-            {
-                user.UserId,
-                user.UserName,
-                Roles = user.Roles,
-                user.IsDeleted,
-                user.CreatedAt,
-                user.UpdatedAt
-            });
-        }*/
+              return Ok(new
+              {
+                  user.UserId,
+                  user.UserName,
+                  Roles = user.Roles,
+                  user.IsDeleted,
+                  user.CreatedAt,
+                  user.UpdatedAt
+              });
+          }*/
     }
 
     public class RegisterRequest
@@ -130,6 +136,9 @@ namespace Experion.PickMyBook.Controllers
         public string Email { get; set; }
     }
 
-   
+    public class LoginRequest
+    {
+        public string Email { get; set; }
+    }
 }
 

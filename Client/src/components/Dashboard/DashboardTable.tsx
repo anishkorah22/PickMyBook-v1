@@ -29,11 +29,11 @@ const DashboardTable = () => {
 
   return (
     <>
-      <Box sx={{ m: "0em 8em"}}>
-        <TableContainer>
+      <Box sx={{ pl: "11em",pr:"7em"}}>
+        <TableContainer sx={{ maxHeight: 200 }}>
           <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
             <TableHead>
-              <TableRow sx={{bgcolor:"#e8d9d3"}}>
+              <TableRow sx={{bgcolor:"#e3c2b6"}}>
                 <TableCell>Sl No.</TableCell>
                 <TableCell align="right">User Name</TableCell>
                 <TableCell align="right">Book Title</TableCell>

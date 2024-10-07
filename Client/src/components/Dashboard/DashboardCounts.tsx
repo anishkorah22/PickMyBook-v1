@@ -27,21 +27,21 @@ const DashboardCounts = () => {
       <Box sx={{ m: 13 }}>
         <Box sx={{ display: "flex" }}>
           <Card sx={{ ml: 10, bgcolor: "#e8d9d3", height: 120, width: 220, display: "flex", justifyContent: "space-evenly", alignItems: "center" }}>
-            <MenuBookIcon sx={{ color: "#ffff", bgcolor: "#d0977f", fontSize: 60 }} />
+            <MenuBookIcon sx={{ color: "#ffff", bgcolor: "#d0977f", fontSize: 60, borderRadius:2 }} />
             <Box>
               <Typography>Total Users</Typography>
               <Typography><b>{totalActiveUsers}</b></Typography>
             </Box>
           </Card>
           <Card sx={{ ml: 10, bgcolor: "#e8d9d3", height: 120, width: 220, display: "flex", justifyContent: "space-evenly", alignItems: "center" }}>
-            <MenuBookIcon sx={{ color: "#ffff", bgcolor: "#d0977f", fontSize: 60 }} />
+            <MenuBookIcon sx={{ color: "#ffff", bgcolor: "#d0977f", fontSize: 60 ,borderRadius:2}} />
             <Box>
               <Typography>Total Books</Typography>
               <Typography><b>{totalBooks}</b></Typography>
             </Box>
           </Card>
           <Card sx={{ ml: 10, bgcolor: "#e8d9d3", height: 120, width: 220, display: "flex", justifyContent: "space-evenly", alignItems: "center" }}>
-            <MenuBookIcon sx={{ color: "#ffff", bgcolor: "#d0977f", fontSize: 60 }} />
+            <MenuBookIcon sx={{ color: "#ffff", bgcolor: "#d0977f", fontSize: 60, borderRadius:2 }} />
             <Box>
               <Typography>Borrowed Books</Typography>
               <Typography><b>{totalCurrentBorrowTransactions}</b></Typography>

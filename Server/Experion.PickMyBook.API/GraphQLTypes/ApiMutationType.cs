@@ -12,10 +12,9 @@ namespace Experion.PickMyBook.API.GraphQLTypes
             descriptor.Field(f => f.CreateUser(default!,  default!))
                 .Type<UserType>();
 
-            descriptor.Field(f => f.AddBook(default!, default!))
+            descriptor.Field(f => f.AddBook(default!))
                 .Type<BookType>()
-                .Argument("dto", a => a.Type<NonNullType<InputObjectType<AddBooksDTO>>>())
-                .Argument("files", a => a.Type<NonNullType<ListType<NonNullType<UploadType>>>>());
+                .Argument("book", a => a.Type<NonNullType<InputObjectType<Book>>>());
 
             descriptor.Field(f => f.UpdateBook(default!))
                 .Type<BookType>();

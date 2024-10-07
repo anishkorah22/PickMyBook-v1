@@ -25,6 +25,13 @@ namespace Experion.PickMyBook.Data
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<Book>> GetBooksAsync()
+        {
+            // Fetch books only if they are not marked as deleted
+            return await _context.Books
+                .ToListAsync();
+        }
+
         public async Task<Book> GetByIdAsync(int id)
         {
             // Include check for IsDeleted

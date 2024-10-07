@@ -7,6 +7,7 @@ namespace Experion.PickMyBook.Data.IRepository
     public interface IBookRepository
     {
         Task<IEnumerable<Book>> GetAllAsync();
+        Task<IEnumerable<Book>> GetBooksAsync();
         Task<Book> GetByIdAsync(int id);
         Task AddAsync(Book entity);
         Task UpdateAsync(Book entity);
