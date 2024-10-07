@@ -1,11 +1,5 @@
 ﻿using Experion.PickMyBook.Infrastructure.Models;
 using System.ComponentModel.DataAnnotations.Schema;
-
-public enum BorrowingStatus
-{
-    Borrowed,
-    Returned
-}
 public class Borrowings
 {
     [ForeignKey("Book")]
@@ -18,6 +12,8 @@ public class Borrowings
 
     public DateTime? BorrowDate { get; set; } = DateTime.Now;
     public DateTime? ReturnDate { get; set; } = DateTime.UtcNow.AddDays(14);
-    public BorrowingStatus Status { get; set; } = BorrowingStatus.Borrowed;
+    [ForeignKey("BorrowingStatus")]
+    public int BorrowingStatusValue { get; set; }
+    public BorrowingStatus? BorrowingStatus { get; set; }
     public decimal? FineAmt { get; set; }
 }

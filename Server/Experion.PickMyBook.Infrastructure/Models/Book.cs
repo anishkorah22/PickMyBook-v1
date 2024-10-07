@@ -1,5 +1,4 @@
-﻿using Experion.PickMyBook.Infrastructure.Models;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
 public class Book

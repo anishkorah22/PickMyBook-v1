@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Experion.PickMyBook.Infrastructure.Models;
 using Experion.PickMyBook.API.GraphQLTypes;
 using Experion.PickMyBook.Infrastructure;
 using Experion.PickMyBook.Business.Service;
@@ -12,9 +11,6 @@ using Experion.PickMyBook.Data.IRepository;
 using Experion.PickMyBook.Business.Services;
 using Experion.PickMyBook.API.Options;
 using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Hosting;
-
-
 
 namespace Experion.PickMyBook.API.Extensions
 {
@@ -102,7 +98,7 @@ namespace Experion.PickMyBook.API.Extensions
         }
         public static IServiceCollection AddApplicationGrpc(this IServiceCollection services)
         {
-            services.AddGrpcClient<Upload.FileUploadService.FileUploadServiceClient>(o =>
+            services.AddGrpcClient<Experion.PickMyBook.GrpcContracts.FileUploadService.FileUploadServiceClient>(o =>
             {
                 o.Address = new Uri("https://localhost:7079"); // gRPC server address
             });

@@ -1,9 +1,6 @@
 ﻿using HotChocolate;
 using HotChocolate.Types;
 using Experion.PickMyBook.Infrastructure.Models;
-using Experion.PickMyBook.Data;
-using Experion.PickMyBook.Business.Services;
-using Experion.PickMyBook.Business.Service;
 using Experion.PickMyBook.Infrastructure;
 using Experion.PickMyBook.Infrastructure.Models.DTO;
 
