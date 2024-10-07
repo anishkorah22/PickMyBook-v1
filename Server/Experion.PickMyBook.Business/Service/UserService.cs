@@ -22,6 +22,10 @@ namespace Experion.PickMyBook.Business.Services
         {
             return await _userRepository.GetAllAsync();
         }
+        public async Task<IEnumerable<User>> GetUsersAsync()
+        {
+            return await _userRepository.GetUsersAsync();
+        }
 
         public async Task<User> GetUserByIdAsync(int id)
         {

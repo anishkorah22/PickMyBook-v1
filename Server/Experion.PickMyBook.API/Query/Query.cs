@@ -18,6 +18,12 @@ public class Query
         var bookService = scope.ServiceProvider.GetRequiredService<IBookService>();
         return await bookService.GetBooksAsync();
     }
+    public async Task<IEnumerable<Book>> GetAllBooks()
+    {
+        using var scope = _serviceScopeFactory.CreateScope();
+        var bookService = scope.ServiceProvider.GetRequiredService<IBookService>();
+        return await bookService.GetAllBooksAsync();
+    }
 
     public async Task<IEnumerable<Borrowings>> GetBorrowings()
     {
@@ -40,6 +46,12 @@ public class Query
         return await userService.GetAllUsersAsync();
     }
 
+    public async Task<IEnumerable<User>> GetUsers()
+    {
+        using var scope = _serviceScopeFactory.CreateScope();
+        var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
+        return await userService.GetUsersAsync();
+    }
     public User GetUserById(int id)
     {
         using var scope = _serviceScopeFactory.CreateScope();

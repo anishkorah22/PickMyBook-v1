@@ -30,7 +30,11 @@ public class BookService : IBookService
     {
         return await _bookRepository.GetAllAsync();
     }
-    public async Task<Book> AddBookAsync(Book book, IEnumerable<IFile>? files)
+    public async Task<IEnumerable<Book>> GetAllBooksAsync()
+    {
+        return await _bookRepository.GetBooksAsync();
+    }
+    public async Task<Book> AddBookAsync(Book book)
     {
 
         var newBook = new Book
@@ -42,42 +46,12 @@ public class BookService : IBookService
             AvailableCopies = book.AvailableCopies,
             PublishedYear = book.PublishedYear,
             Genre = book.Genre,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            IsDeleted = false,
+
         };
 
-        if (files != null && files.Any())
-        {
-            var imageUrls = new List<string>();
-            var uploadPath = Path.Combine(_environment.WebRootPath, "uploads");
-            Console.WriteLine($"WebRootPath: {_environment.WebRootPath}");
-
-
-            if (!Directory.Exists(uploadPath))
-            {
-                Directory.CreateDirectory(uploadPath);
-            }
-
-            foreach (var file in files)
-            {
-                var filePath = Path.Combine(uploadPath, file.Name);
-
-                try
-                {
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await file.CopyToAsync(stream);
-                    }
-
-                    var url = $"/uploads/{file.Name}";
-                    imageUrls.Add(url);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error uploading file {file.Name}: {ex.Message}");
-                }
-            }
-            book.ImageUrls = imageUrls.ToArray();
-        }
+      
 
         await _bookRepository.AddAsync(newBook);
         return newBook;
