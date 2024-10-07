@@ -1,9 +1,4 @@
 ﻿using Experion.PickMyBook.Infrastructure.Models;
-using Experion.PickMyBook.Data;
-using Experion.PickMyBook.Business.Services;
-using Experion.PickMyBook.Business.Service;
-using System.Linq;
-using System.Threading.Tasks;
 using Experion.PickMyBook.Infrastructure;
 using Experion.PickMyBook.Infrastructure.Models.DTO;
 using Experion.PickMyBook.Business.Service.IService;

@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Experion.PickMyBook.Infrastructure;
 using Experion.PickMyBook.API.Options;
 using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
+using Experion.PickMyBook.Business.Service.IService;
 
 
 namespace Experion.PickMyBook.Controllers
@@ -23,6 +25,7 @@ namespace Experion.PickMyBook.Controllers
     {
         private readonly LibraryContext _context;
         private readonly JwtOptions _jwtOptions;
+        
 
         public class EnumerableToStringArrayConverter : ValueConverter<IEnumerable<string>, string[]>
         {
@@ -43,15 +46,21 @@ namespace Experion.PickMyBook.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            // Check if the user already exists
-            if (_context.Users.Any(u => u.UserName == request.Email))
+            
+            if (await _context.Users.AnyAsync(u => u.UserName == request.Email))
                 return Conflict("User already exists");
+
+            // Find the "User" role
+            var userRole = await _context.Roles.FirstOrDefaultAsync(r => r.RoleTypeId == (int)RoleTypeValue.User);
+            if (userRole == null)
+                return StatusCode(500, "Default User role not found");
 
             // Create a new user
             var user = new User
             {
                 UserName = request.Email,
-                Roles = new List<string> { "User" }, // Default role
+                RoleTypeId = userRole.RoleTypeId,
+                Role = userRole,
                 IsDeleted = false,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
@@ -89,7 +98,7 @@ namespace Experion.PickMyBook.Controllers
             var key = Encoding.ASCII.GetBytes(_jwtOptions.Key);
 
             // Convert IEnumerable<string> to IList<string> or directly use ToList() for string.Join
-            var rolesList = user.Roles.ToList(); // Convert to List to ensure it's in the expected format
+            var rolesList = user.Role;// Convert to List to ensure it's in the expected format
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -108,27 +117,6 @@ namespace Experion.PickMyBook.Controllers
             return tokenHandler.WriteToken(token);
         }
 
-
-        /*  [Authorize]
-          [HttpGet("getUserInfo")]
-          public IActionResult GetUserInfo()
-          {
-              var userName = User.Identity.Name;
-              var user = _context.Users.FirstOrDefault(u => u.UserName == userName);
-
-              if (user == null)
-                  return NotFound("User not found");
-
-              return Ok(new
-              {
-                  user.UserId,
-                  user.UserName,
-                  Roles = user.Roles,
-                  user.IsDeleted,
-                  user.CreatedAt,
-                  user.UpdatedAt
-              });
-          }*/
     }
 
     public class RegisterRequest

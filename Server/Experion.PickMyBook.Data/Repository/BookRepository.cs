@@ -19,7 +19,6 @@ namespace Experion.PickMyBook.Data
 
         public async Task<IEnumerable<Book>> GetAllAsync()
         {
-            // Fetch books only if they are not marked as deleted
             return await _context.Books
                 .Where(b => !b.IsDeleted.HasValue || !b.IsDeleted.Value)
                 .ToListAsync();
@@ -34,15 +33,13 @@ namespace Experion.PickMyBook.Data
 
         public async Task<Book> GetByIdAsync(int id)
         {
-            // Include check for IsDeleted
             return await _context.Books
-                .Where(b => b.BookId == id && (!b.IsDeleted.HasValue || !b.IsDeleted.Value))
-                .FirstOrDefaultAsync();
+            .Where(b => b.BookId == id && (!b.IsDeleted.HasValue || !b.IsDeleted.Value))
+            .FirstOrDefaultAsync();
         }
 
         public async Task AddAsync(Book entity)
         {
-            // Add book to the context
             await _context.Books.AddAsync(entity);
             await _context.SaveChangesAsync();
         }
@@ -55,8 +52,11 @@ namespace Experion.PickMyBook.Data
                 throw new KeyNotFoundException("Book not found or is deleted.");
             }
 
-            // Update properties if the book is found and not deleted
-            _context.Entry(existingBook).CurrentValues.SetValues(entity);
+            existingBook.Title = entity.Title;
+            existingBook.Author = entity.Author;
+            // Update other properties as needed
+
+            _context.Books.Update(existingBook);
             await _context.SaveChangesAsync();
         }
 

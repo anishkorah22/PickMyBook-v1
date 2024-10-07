@@ -1,6 +1,4 @@
 ﻿using Experion.PickMyBook.Infrastructure.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Experion.PickMyBook.Data.IRepository
 {
@@ -15,8 +13,5 @@ namespace Experion.PickMyBook.Data.IRepository
         Task UpdateStatusAsync(User entity);
         Task<User> GetByUserIdAsync(int id);
         Task UpdateUserAsync(User user);
-
-
-
     }
 }

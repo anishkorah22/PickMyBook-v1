@@ -1,13 +1,12 @@
-using Experion.PickMyBook.GrpcService;
+using Experion.PickMyBook.GrpcContracts;
 using Experion.PickMyBook.Infrastructure;
 using Experion.PickMyBook.Infrastructure.Models;
 using Grpc.Core;
 using OfficeOpenXml;
-using Upload;
 
 namespace Experion.PickMyBook.GrpcService.Services
 {
-    public class FileUploadService : Upload.FileUploadService.FileUploadServiceBase
+    public class FileUploadService : GrpcContracts.FileUploadService.FileUploadServiceBase
     {
         private readonly LibraryContext _context;
 
@@ -20,13 +19,16 @@ namespace Experion.PickMyBook.GrpcService.Services
         {
             try
             {
-                var books = ParseBooksFromExcel(request.FileContent.ToByteArray()); // Implement this to parse Excel file
-                await _context.Books.AddRangeAsync(books);
-                await _context.SaveChangesAsync();
+                var books = ParseBooksFromExcel(request.FileContent.ToByteArray());
+                if (books.Any())
+                {
+                    await _context.Books.AddRangeAsync(books);
+                    await _context.SaveChangesAsync();
+                }
 
                 return new FileUploadResponse
                 {
-                    Message = "Books uploaded successfully",
+                    Message = "Books uploaded successfully.",
                     Success = true
                 };
             }
@@ -34,7 +36,7 @@ namespace Experion.PickMyBook.GrpcService.Services
             {
                 return new FileUploadResponse
                 {
-                    Message = $"Error: {ex.Message}",
+                    Message = $"Error occurred: {ex.Message}",
                     Success = false
                 };
             }
@@ -44,13 +46,16 @@ namespace Experion.PickMyBook.GrpcService.Services
         {
             try
             {
-                var users = ParseUsersFromExcel(request.FileContent.ToByteArray()); // Implement this to parse Excel file
-                await _context.Users.AddRangeAsync(users);
-                await _context.SaveChangesAsync();
+                var users = ParseUsersFromExcel(request.FileContent.ToByteArray());
+                if (users.Any())
+                {
+                    await _context.Users.AddRangeAsync(users);
+                    await _context.SaveChangesAsync();
+                }
 
                 return new FileUploadResponse
                 {
-                    Message = "Users uploaded successfully",
+                    Message = "Users uploaded successfully.",
                     Success = true
                 };
             }
@@ -58,7 +63,7 @@ namespace Experion.PickMyBook.GrpcService.Services
             {
                 return new FileUploadResponse
                 {
-                    Message = $"Error: {ex.Message}",
+                    Message = $"Error occurred: {ex.Message}",
                     Success = false
                 };
             }
@@ -66,61 +71,56 @@ namespace Experion.PickMyBook.GrpcService.Services
 
         private List<Book> ParseBooksFromExcel(byte[] fileContent)
         {
+            var books = new List<Book>();
             using (var package = new ExcelPackage(new MemoryStream(fileContent)))
             {
                 var worksheet = package.Workbook.Worksheets[0];
-                var books = new List<Book>();
+                var rowCount = worksheet.Dimension.Rows;
 
-                for (int row = 2; row <= worksheet.Dimension.End.Row; row++) // Assuming first row is header
+                for (int row = 2; row <= rowCount; row++)
                 {
                     var book = new Book
                     {
-                        Title = worksheet.Cells[row, 1].Value?.ToString(),  // Parse from Excel
-                        Author = worksheet.Cells[row, 2].Value?.ToString(), // Parse from Excel
-                        ISBN = worksheet.Cells[row, 3].Value?.ToString(),   // Parse from Excel
-                        Publisher = worksheet.Cells[row, 4].Value?.ToString(), // Parse from Excel
-                        AvailableCopies = int.TryParse(worksheet.Cells[row, 5].Value?.ToString(), out var availableCopies) ? availableCopies : (int?)null, // Parse from Excel
-                        PublishedYear = int.TryParse(worksheet.Cells[row, 6].Value?.ToString(), out var publishedYear) ? publishedYear : (int?)null, // Parse from Excel
-                        Genre = worksheet.Cells[row, 7].Value?.ToString(),  // Parse from Excel
-                        ImageUrls = worksheet.Cells[row, 8].Value?.ToString()?.Split(','),  // Parse from Excel
-                        IsDeleted = false, // Generated in API call
-                        CreatedAt = DateTime.UtcNow, // Generated in API call
-                        UpdatedAt = DateTime.UtcNow  // Generated in API call
+                        Title = worksheet.Cells[row, 1].Text,
+                        Author = worksheet.Cells[row, 2].Text,
+                        ISBN = worksheet.Cells[row, 3].Text,
+                        Publisher = worksheet.Cells[row, 4].Text,
+                        AvailableCopies = int.Parse(worksheet.Cells[row, 5].Text),
+                        PublishedYear = int.Parse(worksheet.Cells[row, 6].Text),
+                        Genre = worksheet.Cells[row, 7].Text,
+                        ImageUrls = worksheet.Cells[row, 8].Text.Split(',').Select(s => s.Trim()).ToArray(),
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
                     };
-
                     books.Add(book);
                 }
-
-                return books;
             }
-        }
 
+            return books;
+        }
 
         private List<User> ParseUsersFromExcel(byte[] fileContent)
         {
+            var users = new List<User>();
             using (var package = new ExcelPackage(new MemoryStream(fileContent)))
             {
                 var worksheet = package.Workbook.Worksheets[0];
-                var users = new List<User>();
+                var rowCount = worksheet.Dimension.Rows;
 
-                for (int row = 2; row <= worksheet.Dimension.End.Row; row++) // Assuming first row is header
+                for (int row = 2; row <= rowCount; row++)
                 {
                     var user = new User
                     {
-                        UserName = worksheet.Cells[row, 1].Value?.ToString(),  // Only UserName from Excel
-                        Roles = worksheet.Cells[row, 2].Value?.ToString()?.Split(','), // Only Roles from Excel
-                        IsDeleted = false, // Generated in API call
-                        CreatedAt = DateTime.UtcNow, 
-                        UpdatedAt = DateTime.UtcNow  
+                        UserName = worksheet.Cells[row, 1].Text,
+                        RoleTypeId = (int)Enum.Parse(typeof(RoleTypeValue), worksheet.Cells[row, 2].Text),
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
                     };
-
                     users.Add(user);
                 }
-
-                return users;
             }
+
+            return users;
         }
-
     }
-
 }

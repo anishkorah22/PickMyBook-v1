@@ -1,5 +1,4 @@
-﻿using Experion.PickMyBook.Infrastructure.Models.DTO;
-using HotChocolate.Types;
+﻿using HotChocolate.Types;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;

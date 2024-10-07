@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Experion.PickMyBook.Busines
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Experion.PickMyBook.API", "Experion.PickMyBook.API\Experion.PickMyBook.API.csproj", "{A9004E05-EF65-4DBC-8367-4DB57CF10E25}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Experion.PickMyBook.GrpcService", "Experion.PickMyBook.GrpcService\Experion.PickMyBook.GrpcService.csproj", "{DF8A4466-0832-4329-B220-32D34F40353C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Experion.PickMyBook.GrpcService", "Experion.PickMyBook.GrpcService\Experion.PickMyBook.GrpcService.csproj", "{DF8A4466-0832-4329-B220-32D34F40353C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Experion.PickMyBook.GrpcContracts", "Experion.PickMyBook.GrpcContracts\Experion.PickMyBook.GrpcContracts.csproj", "{7047D55A-F558-4904-BE76-B28B34211A64}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{DF8A4466-0832-4329-B220-32D34F40353C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF8A4466-0832-4329-B220-32D34F40353C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF8A4466-0832-4329-B220-32D34F40353C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7047D55A-F558-4904-BE76-B28B34211A64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7047D55A-F558-4904-BE76-B28B34211A64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7047D55A-F558-4904-BE76-B28B34211A64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7047D55A-F558-4904-BE76-B28B34211A64}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

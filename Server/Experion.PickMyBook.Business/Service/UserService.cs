@@ -4,9 +4,6 @@ using Experion.PickMyBook.Data.IRepository;
 using Experion.PickMyBook.Infrastructure;
 using Experion.PickMyBook.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Experion.PickMyBook.Business.Services
 {
@@ -35,19 +32,28 @@ namespace Experion.PickMyBook.Business.Services
             return await _userRepository.GetByIdAsync(id);
         }
 
-        public async Task<User> CreateUserAsync(string userName, IEnumerable<string> roles)
+        public async Task<User> CreateUserAsync(User user, string roleTypeValue)
         {
-            var newUser = new User
-            {
-                UserName = userName,
-                Roles = roles,
-                IsDeleted = false,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
 
-            await _userRepository.AddAsync(newUser);
-            return newUser;
+            if (!Enum.TryParse(roleTypeValue, true, out RoleTypeValue parsedRoleType))
+            {
+                throw new ArgumentException($"Invalid role type value: {roleTypeValue}");
+            }
+
+            var role = await _context.Roles.FirstOrDefaultAsync(r => r.RoleTypeId == (int)parsedRoleType);
+            if (role == null)
+            {
+                throw new ArgumentException($"Role not found for RoleTypeValue: {roleTypeValue}");
+            }
+
+            user.RoleTypeId = role.RoleTypeId;
+            user.Role = role;
+            user.IsDeleted = false;
+            user.CreatedAt = DateTime.UtcNow;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _userRepository.AddAsync(user);
+            return user;
         }
 
         public async Task UpdateUserAsync(User user)

@@ -48,6 +48,7 @@ public class BookService : IBookService
             Genre = book.Genre,
             CreatedAt = DateTime.UtcNow,
             IsDeleted = false,
+
         };
 
       

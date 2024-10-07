@@ -1,9 +1,4 @@
-﻿using HotChocolate;
-using HotChocolate.Types;
-using Experion.PickMyBook.Infrastructure.Models;
-using Experion.PickMyBook.Data;
-using Experion.PickMyBook.Business.Services;
-using Experion.PickMyBook.Infrastructure;
+﻿using Experion.PickMyBook.Infrastructure;
 
 public class BookType : ObjectType<Book>
 {
