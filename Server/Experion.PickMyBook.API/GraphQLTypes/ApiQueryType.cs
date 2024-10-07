@@ -1,5 +1,4 @@
-﻿using HotChocolate.Types;
-using static BorrowingType;
+﻿using static BorrowingType;
 using static UserType;
 
 namespace Experion.PickMyBook.API.GraphQLTypes

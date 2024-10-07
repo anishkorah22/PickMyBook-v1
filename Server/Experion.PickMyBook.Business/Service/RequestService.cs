@@ -7,27 +7,24 @@ public class RequestService : IRequestService
 {
     private readonly IRequestRepository _requestRepository;
     private readonly IBookRepository _bookRepository;
-    public RequestService(IRequestRepository requestRepository, IBookRepository BookRepository)
+
+    public RequestService(IRequestRepository requestRepository, IBookRepository bookRepository)
     {
         _requestRepository = requestRepository;
-        _bookRepository = BookRepository;
+        _bookRepository = bookRepository;
     }
 
     public async Task<IEnumerable<RequestDTO>> GetAllRequestsAsync()
     {
+        var requests = await _requestRepository.GetAllRequestsAsync();
 
-        var request = new List<Request>();
-
-        request = (await _requestRepository.GetAllRequestsAsync()).ToList();
-
-        return request.Select(r => new RequestDTO
+        return requests.Select(r => new RequestDTO
         {
             BookTitle = r.Book.Title,
             Username = r.User.UserName,
-            RequestType = r.RequestType.ToString()
+            RequestType = ((RequestTypeValue)r.RequestTypeValue).ToString()
         });
     }
-
 
     public async Task<Request> CreateBorrowRequestAsync(int bookId, int userId)
     {
@@ -38,59 +35,26 @@ public class RequestService : IRequestService
     {
         return await _requestRepository.CreateReturnRequestAsync(bookId, userId);
     }
+
     public async Task<Request> ApproveRequestAsync(int requestId)
     {
-        // Retrieve the request
-        var request = await _requestRepository.GetRequestByIdAsync(requestId)
-                      ?? throw new InvalidOperationException("Request cannot be approved.");
+        var request = await _requestRepository.GetRequestByIdAsync(requestId);
+        if (request == null)
+        {
+            throw new InvalidOperationException("Request not found.");
+        }
 
-        // Update the request status to Approved
-        request.Status = RequestStatus.Approved;
+        request.RequestStatusValue = (int)RequestStatusValue.Approved;
         await _requestRepository.UpdateRequestAsync(request);
 
-        // Process the request based on its type
-        switch (request.RequestType)
+        switch ((RequestTypeValue)request.RequestTypeValue)
         {
-            case RequestType.BorrowRequest:
-                // Create a new borrowing record
-                await _requestRepository.AddBorrowingAsync(new Borrowings
-                {
-                    BookId = request.BookId,
-                    UserId = request.UserId,
-                    BorrowDate = DateTime.UtcNow,
-                    ReturnDate = DateTime.UtcNow.AddDays(14),
-                    Status = BorrowingStatus.Borrowed
-                });
-
-                // Update the available copies
-                var book = await _bookRepository.GetBookByIdAsync(request.BookId)
-                            ?? throw new InvalidOperationException("Book not found.");
-
-                if (book.AvailableCopies <= 0)
-                {
-                    throw new InvalidOperationException("No available copies left.");
-                }
-
-                book.AvailableCopies--;
-                await _bookRepository.UpdateBookAsync(book);
+            case RequestTypeValue.BorrowRequest:
+                await ProcessApprovedBorrowRequest(request);
                 break;
 
-            case RequestType.ReturnRequest:
-                // Retrieve the existing borrowing record
-                var borrowing = await _requestRepository.GetBorrowingByBookAndUserAsync(request.BookId, request.UserId)
-                                ?? throw new InvalidOperationException("No borrowing record found for this book and user.");
-
-                // Update the borrowing record to returned
-                borrowing.Status = BorrowingStatus.Returned;
-                borrowing.ReturnDate = DateTime.UtcNow;
-                await _requestRepository.UpdateBorrowingAsync(borrowing);
-
-                // Update the available copies
-                var returnedBook = await _bookRepository.GetBookByIdAsync(request.BookId)
-                                   ?? throw new InvalidOperationException("Book not found.");
-
-                returnedBook.AvailableCopies++;
-                await _bookRepository.UpdateBookAsync(returnedBook);
+            case RequestTypeValue.ReturnRequest:
+                await ProcessApprovedReturnRequest(request);
                 break;
 
             default:
@@ -100,21 +64,60 @@ public class RequestService : IRequestService
         return request;
     }
 
+    private async Task ProcessApprovedBorrowRequest(Request request)
+    {
+        await _requestRepository.AddBorrowingAsync(new Borrowings
+        {
+            BookId = request.BookId,
+            UserId = request.UserId,
+            BorrowDate = DateTime.UtcNow,
+            ReturnDate = DateTime.UtcNow.AddDays(14),
+            BorrowingStatusValue = (int)BorrowingStatusValue.Borrowed
+        });
+
+        var book = await _bookRepository.GetBookByIdAsync(request.BookId)
+                    ?? throw new InvalidOperationException("Book not found.");
+
+        if (book.AvailableCopies <= 0)
+        {
+            throw new InvalidOperationException("No available copies left.");
+        }
+
+        book.AvailableCopies--;
+        await _bookRepository.UpdateBookAsync(book);
+    }
+
+    private async Task ProcessApprovedReturnRequest(Request request)
+    {
+        var borrowing = await _requestRepository.GetBorrowingByBookAndUserAsync(request.BookId, request.UserId)
+                        ?? throw new InvalidOperationException("No borrowing record found for this book and user.");
+
+        borrowing.BorrowingStatusValue = (int)BorrowingStatusValue.Returned; // Assuming 'Pending' for return
+        borrowing.ReturnDate = DateTime.UtcNow;
+        await _requestRepository.UpdateBorrowingAsync(borrowing);
+
+        var returnedBook = await _bookRepository.GetBookByIdAsync(request.BookId)
+                           ?? throw new InvalidOperationException("Book not found.");
+
+        returnedBook.AvailableCopies++;
+        await _bookRepository.UpdateBookAsync(returnedBook);
+    }
+
     public async Task<Request> DeclineRequestAsync(int requestId, string message)
     {
         var request = await _requestRepository.GetRequestByIdAsync(requestId);
-        if (request == null || request.Status != RequestStatus.Pending)
+        if (request == null || request.RequestStatusValue != (int)RequestStatusValue.Pending)
         {
             throw new InvalidOperationException("Request cannot be declined.");
         }
 
-        request.Status = RequestStatus.Declined;
+        request.RequestStatusValue = (int)RequestStatusValue.Declined;
         request.Message = message;
 
         await _requestRepository.UpdateRequestAsync(request);
         return request;
-
     }
+
     public async Task<IEnumerable<UserRequestsDTO>> GetRequestsByUserAsync(int userId)
     {
         var requests = await _requestRepository.GetAllRequestsAsync();
@@ -124,13 +127,12 @@ public class RequestService : IRequestService
             .Select(r => new UserRequestsDTO
             {
                 BookTitle = r.Book?.Title ?? "Unknown Title",
-                RequestType = r.RequestType.ToString(),
-                RequestStatus = r.Status.ToString(),
+                RequestType = ((RequestTypeValue)r.RequestTypeValue).ToString(),
+                RequestStatus = ((RequestStatusValue)r.RequestStatusValue).ToString(),
                 Message = r.Message ?? "No message"
             })
             .ToList();
 
         return userRequests;
     }
-
 }

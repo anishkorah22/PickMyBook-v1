@@ -1,7 +1,5 @@
-﻿using Experion.PickMyBook.Data;
+﻿using Experion.PickMyBook.Infrastructure.Models;
 using Experion.PickMyBook.Infrastructure.Models.DTO;
-using HotChocolate.Types;
-using Microsoft.VisualBasic.FileIO;
 
 namespace Experion.PickMyBook.API.GraphQLTypes
 {
@@ -9,12 +7,15 @@ namespace Experion.PickMyBook.API.GraphQLTypes
     {
         protected override void Configure(IObjectTypeDescriptor<Mutation> descriptor)
         {
-            descriptor.Field(f => f.CreateUser(default!,  default!))
-                .Type<UserType>();
+            descriptor.Field(f => f.CreateUser(default!, default))
+            .Type<UserType>()
+            .Argument("userName", a => a.Type<NonNullType<StringType>>())
+            .Argument("roleTypeValue", a => a.Type<NonNullType<RoleTypeValueEnumType>>());
+
 
             descriptor.Field(f => f.AddBook(default!, default!))
                 .Type<BookType>()
-                .Argument("dto", a => a.Type<NonNullType<InputObjectType<AddBooksDTO>>>())
+                .Argument("book", a => a.Type<NonNullType<InputObjectType<Book>>>())
                 .Argument("files", a => a.Type<NonNullType<ListType<NonNullType<UploadType>>>>());
 
             descriptor.Field(f => f.UpdateBook(default!))
@@ -28,9 +29,12 @@ namespace Experion.PickMyBook.API.GraphQLTypes
             descriptor.Field(m => m.UpdateBorrowing(default!))
                 .Type<BorrowingType>();
 
-            descriptor.Field(f => f.UpdateUser(default!))
-              .Type<UserType>()
-              .Name("updateUser");
+            descriptor.Field(f => f.UpdateUser(default!, default!, default))
+            .Type<UserType>()
+            .Name("updateUser")
+            .Argument("userId", a => a.Type<NonNullType<IntType>>())
+            .Argument("userName", a => a.Type<NonNullType<StringType>>())
+            .Argument("roleTypeValue", a => a.Type<NonNullType<RoleTypeValueEnumType>>());
 
             descriptor.Field(f => f.UpdateBookStatusAsync(default!, default!))
                 .Type<BookType>()

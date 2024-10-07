@@ -1,7 +1,6 @@
 ﻿using Experion.PickMyBook.Infrastructure.Models;
 using Experion.PickMyBook.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-
 public class RequestRepository : IRequestRepository
 {
     private readonly LibraryContext _context;
@@ -16,6 +15,8 @@ public class RequestRepository : IRequestRepository
         return await _context.Requests
             .Include(r => r.Book)
             .Include(r => r.User)
+            .Include(r => r.RequestType)
+            .Include(r => r.RequestStatus)
             .ToListAsync();
     }
 
@@ -25,7 +26,9 @@ public class RequestRepository : IRequestRepository
         {
             BookId = bookId,
             UserId = userId,
-            RequestType = RequestType.BorrowRequest,
+            RequestTypeValue = (int)RequestTypeValue.BorrowRequest,
+            RequestStatusValue = (int)RequestStatusValue.Pending,
+            RequestedAt = DateTime.UtcNow
         };
 
         _context.Requests.Add(newRequest);
@@ -35,29 +38,40 @@ public class RequestRepository : IRequestRepository
 
     public async Task<Request> CreateReturnRequestAsync(int bookId, int userId)
     {
-        var borrowingRequest = await _context.Requests
-            .FirstOrDefaultAsync(r => r.BookId == bookId && r.UserId == userId && r.Status == RequestStatus.Approved && r.RequestType == RequestType.BorrowRequest);
+        var borrowRequest = await _context.Requests
+            .FirstOrDefaultAsync(r => r.BookId == bookId &&
+                                      r.UserId == userId &&
+                                      r.RequestStatusValue == (int)RequestStatusValue.Approved &&
+                                      r.RequestTypeValue == (int)RequestTypeValue.BorrowRequest);
 
-        if (borrowingRequest == null)
+        if (borrowRequest == null)
         {
             throw new InvalidOperationException("No approved borrow request found for this book and user.");
         }
 
-        // Updating the request
-        borrowingRequest.RequestType = RequestType.ReturnRequest;
-        borrowingRequest.Status = RequestStatus.Pending;
-        borrowingRequest.RequestedAt = DateTime.UtcNow;
+        // Create a new return request
+        var returnRequest = new Request
+        {
+            BookId = bookId,
+            UserId = userId,
+            RequestTypeValue = (int)RequestTypeValue.ReturnRequest,
+            RequestStatusValue = (int)RequestStatusValue.Pending,
+            RequestedAt = DateTime.UtcNow
+        };
 
-        _context.Requests.Update(borrowingRequest);
+        _context.Requests.Add(returnRequest);
         await _context.SaveChangesAsync();
-        return borrowingRequest;
+        return returnRequest;
     }
-
     public async Task<Request> GetRequestByIdAsync(int requestId)
     {
         // Check if the request exists
         var request = await _context.Requests
             .Where(r => r.RequestId == requestId)
+            .Include(r => r.Book)
+            .Include(r => r.User)
+            .Include(r => r.RequestType)
+            .Include(r => r.RequestStatus)
             .FirstOrDefaultAsync();
 
         return request;
@@ -68,7 +82,7 @@ public class RequestRepository : IRequestRepository
         _context.Requests.Update(request);
         await _context.SaveChangesAsync();
     }
-        
+
     public async Task AddBorrowingAsync(Borrowings borrowing)
     {
         _context.Borrowings.Add(borrowing);
@@ -77,15 +91,15 @@ public class RequestRepository : IRequestRepository
 
     public async Task<Borrowings> GetBorrowingByBookAndUserAsync(int bookId, int userId)
     {
+        
         return await _context.Borrowings
-            .FirstOrDefaultAsync(b => b.BookId == bookId && b.UserId == userId && b.Status == BorrowingStatus.Borrowed);
+            .Include(b => b.BorrowingStatus)
+            .FirstOrDefaultAsync(b => b.BookId == bookId && b.UserId == userId && b.BorrowingStatusValue == (int)BorrowingStatusValue.Borrowed);
     }
+
     public async Task UpdateBorrowingAsync(Borrowings borrowing)
     {
         _context.Borrowings.Update(borrowing);
         await _context.SaveChangesAsync();
     }
-
-    
-
 }

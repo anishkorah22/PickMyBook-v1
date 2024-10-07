@@ -80,20 +80,50 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
                     b.Property<DateTime?>("BorrowDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("BorrowingStatusValue")
+                        .HasColumnType("integer");
+
                     b.Property<decimal?>("FineAmt")
                         .HasColumnType("numeric");
 
                     b.Property<DateTime?>("ReturnDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
                     b.HasKey("BookId", "UserId");
+
+                    b.HasIndex("BorrowingStatusValue");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("Borrowings");
+                });
+
+            modelBuilder.Entity("Experion.PickMyBook.Infrastructure.Models.BorrowingStatus", b =>
+                {
+                    b.Property<int>("BorrowingStatusId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BorrowingStatusId"));
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("BorrowingStatusId");
+
+                    b.ToTable("BorrowingStatuses");
+
+                    b.HasData(
+                        new
+                        {
+                            BorrowingStatusId = 1,
+                            Status = 1
+                        },
+                        new
+                        {
+                            BorrowingStatusId = 2,
+                            Status = 2
+                        });
                 });
 
             modelBuilder.Entity("Experion.PickMyBook.Infrastructure.Models.Request", b =>
@@ -110,16 +140,16 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
                     b.Property<string>("Message")
                         .HasColumnType("text");
 
-                    b.Property<int>("RequestType")
+                    b.Property<int>("RequestStatusValue")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RequestTypeValue")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("RequestedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -128,9 +158,91 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
 
                     b.HasIndex("BookId");
 
+                    b.HasIndex("RequestStatusValue");
+
+                    b.HasIndex("RequestTypeValue");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Requests");
+                });
+
+            modelBuilder.Entity("Experion.PickMyBook.Infrastructure.Models.RequestStatus", b =>
+                {
+                    b.Property<int>("RequestStatusId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("RequestStatusId"));
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("RequestStatusId");
+
+                    b.ToTable("RequestStatuses");
+
+                    b.HasData(
+                        new
+                        {
+                            RequestStatusId = 1,
+                            Status = 1
+                        },
+                        new
+                        {
+                            RequestStatusId = 2,
+                            Status = 2
+                        },
+                        new
+                        {
+                            RequestStatusId = 3,
+                            Status = 3
+                        });
+                });
+
+            modelBuilder.Entity("Experion.PickMyBook.Infrastructure.Models.RequestType", b =>
+                {
+                    b.Property<int>("RequestTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("RequestTypeId"));
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.HasKey("RequestTypeId");
+
+                    b.ToTable("RequestTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            RequestTypeId = 1,
+                            Type = 1
+                        },
+                        new
+                        {
+                            RequestTypeId = 2,
+                            Type = 2
+                        });
+                });
+
+            modelBuilder.Entity("Experion.PickMyBook.Infrastructure.Models.Role", b =>
+                {
+                    b.Property<int>("RoleTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("RoleTypeId"));
+
+                    b.Property<string>("RoleTypeValue")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("RoleTypeId");
+
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("Experion.PickMyBook.Infrastructure.Models.User", b =>
@@ -147,9 +259,8 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Roles")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("RoleTypeId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -159,6 +270,8 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("UserId");
+
+                    b.HasIndex("RoleTypeId");
 
                     b.ToTable("Users");
                 });
@@ -171,6 +284,12 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Experion.PickMyBook.Infrastructure.Models.BorrowingStatus", "BorrowingStatus")
+                        .WithMany()
+                        .HasForeignKey("BorrowingStatusValue")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Experion.PickMyBook.Infrastructure.Models.User", "User")
                         .WithMany("Borrowings")
                         .HasForeignKey("UserId")
@@ -178,6 +297,8 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Book");
+
+                    b.Navigation("BorrowingStatus");
 
                     b.Navigation("User");
                 });
@@ -190,6 +311,18 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Experion.PickMyBook.Infrastructure.Models.RequestStatus", "RequestStatus")
+                        .WithMany()
+                        .HasForeignKey("RequestStatusValue")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Experion.PickMyBook.Infrastructure.Models.RequestType", "RequestType")
+                        .WithMany()
+                        .HasForeignKey("RequestTypeValue")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Experion.PickMyBook.Infrastructure.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -198,7 +331,22 @@ namespace Experion.PickMyBook.Infrastructure.Migrations
 
                     b.Navigation("Book");
 
+                    b.Navigation("RequestStatus");
+
+                    b.Navigation("RequestType");
+
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Experion.PickMyBook.Infrastructure.Models.User", b =>
+                {
+                    b.HasOne("Experion.PickMyBook.Infrastructure.Models.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("Book", b =>

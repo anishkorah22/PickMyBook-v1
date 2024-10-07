@@ -5,18 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Experion.PickMyBook.Infrastructure.Models
 {
-    public enum RequestType  //separat class
-    {
-        BorrowRequest,
-        ReturnRequest
-    }
-
-    public enum RequestStatus
-    {
-        Pending,
-        Approved,
-        Declined
-    }
 
     public class Request
     {
@@ -29,13 +17,19 @@ namespace Experion.PickMyBook.Infrastructure.Models
 
         [ForeignKey("User")]
         public int UserId { get; set; }
+
         public User? User { get; set; }
+
+        [ForeignKey("RequestType")]
+        public int RequestTypeValue { get; set; }
 
         public RequestType? RequestType { get; set; }
 
         public DateTime? RequestedAt { get; set; } = DateTime.UtcNow;
 
-        public RequestStatus? Status { get; set; } = RequestStatus.Pending;  // Enum: Pending, Approved, Declined
+        [ForeignKey("RequestStatus")]
+        public int RequestStatusValue { get; set; }
+        public RequestStatus? RequestStatus { get; set; }  
 
         public string? Message { get; set; }
     }

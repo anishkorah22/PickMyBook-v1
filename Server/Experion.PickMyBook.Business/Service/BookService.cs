@@ -30,18 +30,18 @@ public class BookService : IBookService
     {
         return await _bookRepository.GetAllAsync();
     }
-    public async Task<Book> AddBookAsync(AddBooksDTO dto, IEnumerable<IFile>? files)
+    public async Task<Book> AddBookAsync(Book book, IEnumerable<IFile>? files)
     {
 
-        var book = new Book
+        var newBook = new Book
         {
-            Title = dto.Title,
-            Author = dto.Author,
-            ISBN = dto.ISBN,
-            Publisher = dto.Publisher,
-            AvailableCopies = dto.AvailableCopies,
-            PublishedYear = dto.PublishedYear,
-            Genre = dto.Genre,
+            Title = book.Title,
+            Author = book.Author,
+            ISBN = book.ISBN,
+            Publisher = book.Publisher,
+            AvailableCopies = book.AvailableCopies,
+            PublishedYear = book.PublishedYear,
+            Genre = book.Genre,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -79,8 +79,8 @@ public class BookService : IBookService
             book.ImageUrls = imageUrls.ToArray();
         }
 
-        await _bookRepository.AddAsync(book);
-        return book;
+        await _bookRepository.AddAsync(newBook);
+        return newBook;
     }
 
 

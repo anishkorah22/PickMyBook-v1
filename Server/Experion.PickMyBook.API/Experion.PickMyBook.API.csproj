@@ -37,12 +37,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Experion.PickMyBook.Business\Experion.PickMyBook.Business.csproj" />
+    <ProjectReference Include="..\Experion.PickMyBook.GrpcContracts\Experion.PickMyBook.GrpcContracts.csproj" />
     <ProjectReference Include="..\Experion.PickMyBook.Infrastructure\Experion.PickMyBook.Infrastructure.csproj" />
   </ItemGroup>
-	<ItemGroup>
-		<Protobuf Include="Protos\upload.proto" GrpcServices="Client" />
-	</ItemGroup>
-
 
   <ItemGroup>
     <EditorConfigFiles Remove="C:\Users\gopika.vinod\Desktop\PickMyBook-v1\Experion.PickMyBook.API\.editorconfig" />
@@ -55,5 +52,6 @@
   <ItemGroup>
     <Folder Include="wwwroot\uploads\" />
   </ItemGroup>
+	
 
 </Project>

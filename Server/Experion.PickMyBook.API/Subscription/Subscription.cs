@@ -1,6 +1,4 @@
-﻿using HotChocolate;
-using HotChocolate.Subscriptions;
-using Experion.PickMyBook.Infrastructure.Models;
+﻿using Experion.PickMyBook.Infrastructure.Models;
 using Experion.PickMyBook.Business.Service.IService;
 
 namespace Experion.PickMyBook.API.GraphQLTypes

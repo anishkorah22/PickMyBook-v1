@@ -1,13 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Experion.PickMyBook.Infrastructure.Models
 {
     public class User
     {
+        [Key]
         public int UserId { get; set; }
         public string UserName { get; set; }
-        public IEnumerable<string> Roles { get; set; }  //enum
+
+        [ForeignKey("Role")]
+        public int RoleTypeId { get; set; }
+        public Role Role { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
@@ -15,12 +20,5 @@ namespace Experion.PickMyBook.Infrastructure.Models
 
         
     }
-    public static class Roles  //cange the class 
-    {
-        public const string Admin = "Admin";
-        public const string Staff = "Staff";
-        public const string User = "User";
-
-        public static IEnumerable<string> AllRoles => new[] { Admin, Staff, User };
-    }
+  
 }

@@ -5,9 +5,7 @@ using Experion.PickMyBook.Infrastructure;
 using Experion.PickMyBook.Infrastructure.Models;
 using Experion.PickMyBook.Infrastructure.Models.DTO;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace Experion.PickMyBook.Business.Service
 {
@@ -48,9 +46,7 @@ namespace Experion.PickMyBook.Business.Service
             }
 
             var existingBorrowing = await _context.Borrowings
-                .Where(b => b.BookId == bookId && b.UserId == userId && b.Status == BorrowingStatus.Borrowed)
-                .FirstOrDefaultAsync();
-
+                .FirstOrDefaultAsync(b => b.BookId == bookId && b.UserId == userId && b.BorrowingStatusValue == (int)BorrowingStatusValue.Borrowed);
             if (existingBorrowing != null)
             {
                 throw new InvalidOperationException("This book is already borrowed by the user.");
@@ -62,10 +58,11 @@ namespace Experion.PickMyBook.Business.Service
                 UserId = userId,
                 BorrowDate = currentDate,
                 ReturnDate = currentDate.AddDays(14),
-                Status = BorrowingStatus.Borrowed 
+                BorrowingStatusValue = (int)BorrowingStatusValue.Borrowed
             };
 
-            _context.Borrowings.Add(borrowing);
+            await _borrowingsRepository.AddAsync(borrowing);
+
             book.AvailableCopies -= 1;
             _context.Books.Update(book);
             await _context.SaveChangesAsync();
@@ -75,101 +72,91 @@ namespace Experion.PickMyBook.Business.Service
 
         public async Task<Borrowings> UpdateBorrowingAsync(Borrowings borrowing)
         {
-            var existingBorrowing = await _context.Borrowings
-                .FirstOrDefaultAsync(b => b.BookId == borrowing.BookId && b.UserId == borrowing.UserId);
-
+            var existingBorrowing = await _borrowingsRepository.GetByIdAsync(borrowing.BookId);
             if (existingBorrowing == null)
             {
                 throw new KeyNotFoundException("Borrowing record not found.");
             }
 
+            existingBorrowing.ReturnDate = borrowing.ReturnDate ?? existingBorrowing.ReturnDate;
+            existingBorrowing.BorrowingStatusValue = borrowing.BorrowingStatusValue;
+            existingBorrowing.FineAmt = borrowing.FineAmt ?? existingBorrowing.FineAmt;
 
-            existingBorrowing.ReturnDate = borrowing.ReturnDate.HasValue ? borrowing.ReturnDate : existingBorrowing.ReturnDate;
-            existingBorrowing.Status = borrowing.Status;  // Use the enum directly
-            existingBorrowing.FineAmt = borrowing.FineAmt.HasValue ? borrowing.FineAmt : existingBorrowing.FineAmt;
-
-
-            _context.Borrowings.Update(existingBorrowing);
-            await _context.SaveChangesAsync();
-
+            await _borrowingsRepository.UpdateAsync(existingBorrowing);
             return existingBorrowing;
         }
 
         public async Task<Borrowings> ReturnBookAsync(int userId, int bookId)
         {
             var currentDate = DateTime.UtcNow;
-
             var borrowing = await _context.Borrowings
-                .FirstOrDefaultAsync(b => b.BookId == bookId && b.UserId == userId && b.Status == BorrowingStatus.Borrowed);
-
+                .FirstOrDefaultAsync(b => b.BookId == bookId && b.UserId == userId && b.BorrowingStatusValue == (int)BorrowingStatusValue.Borrowed);
             if (borrowing == null)
             {
                 throw new ArgumentException("Borrowing record not found.");
             }
 
             borrowing.ReturnDate = currentDate;
-
             if (currentDate > borrowing.ReturnDate)
             {
                 borrowing.FineAmt = CalculateFineAmount(borrowing.ReturnDate.Value, currentDate);
             }
-
-            borrowing.Status = BorrowingStatus.Returned;  // Use the enum here
+            borrowing.BorrowingStatusValue = (int)BorrowingStatusValue.Returned;  // Assuming 'Pending' for return approval
 
             var book = await _context.Books.FindAsync(bookId);
             if (book == null)
             {
                 throw new ArgumentException("Book not found.");
             }
+
             book.AvailableCopies += 1;
             _context.Books.Update(book);
 
-            await _context.SaveChangesAsync();
-
+            await _borrowingsRepository.UpdateAsync(borrowing);
             return borrowing;
         }
 
         public async Task<int> GetTotalBorrowingsCountAsync()
         {
-            return await _context.Borrowings
-
-               .Where(b => b.Status == BorrowingStatus.Borrowed)  // Use the enum here
-               .CountAsync();
+            var borrowings = await _borrowingsRepository.GetAllAsync();
+            return borrowings.Count(b => b.BorrowingStatusValue == (int)BorrowingStatusValue.Borrowed);
         }
 
 
         public async Task<List<Borrowings>> GetBorrowingsByUserIdAsync(int userId)
         {
-            return await _borrowingsRepository.GetBorrowingsByUserIdAsync(userId);
+            return await _context.Borrowings
+       .Include(b => b.Book) 
+       .Where(b => b.UserId == userId)
+       .ToListAsync();
         }
 
        public async Task<List<UserBooksReadInfoDTO>> GetBooksReadByUserAsync(int userId)
-{
-    var user = await _context.Users.FindAsync(userId);
-    if (user == null)
-    {
-        throw new ArgumentException("User not found.");
-    }
+       {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                throw new ArgumentException("User not found.");
+            }
 
-    var borrowings = await _context.Borrowings
-        .Where(b => b.UserId == userId && b.Status == BorrowingStatus.Returned)
-        .Include(b => b.Book) // Ensure Book entity is loaded
+            var borrowings = await _context.Borrowings
+        .Include(b => b.Book)
+        .Where(b => b.UserId == userId)
         .ToListAsync();
+            var booksRead = borrowings
+                .Where(b => b.BorrowingStatusValue == (int)BorrowingStatusValue.Returned && b.ReturnDate.HasValue)
+                .Select(b => new UserBooksReadInfoDTO
+                {
+                    BooksReadCount = borrowings.Count(br => br.BorrowingStatusValue == (int)BorrowingStatusValue.Returned && br.ReturnDate.HasValue),
+                    Title = b.Book?.Title ?? "Unknown Title",
+                    Author = b.Book?.Author ?? "Unknown Author",
+                    BorrowDate = b.BorrowDate.HasValue ? DateOnly.FromDateTime(b.BorrowDate.Value) : DateOnly.MinValue,
+                    ReturnDate = b.ReturnDate.HasValue ? DateOnly.FromDateTime(b.ReturnDate.Value) : DateOnly.MinValue
+                })
+                .ToList();
 
-    var booksRead = borrowings
-        .Select(b => new UserBooksReadInfoDTO
-        {
-            BooksReadCount = borrowings.Count(br => br.Status == BorrowingStatus.Returned),
-            Title = b.Book?.Title ?? "Unknown Title", // Handle potential nulls
-            Author = b.Book?.Author ?? "Unknown Author", // Handle potential nulls
-            BorrowDate = b.BorrowDate.HasValue ? DateOnly.FromDateTime(b.BorrowDate.Value) : DateOnly.MinValue,
-            ReturnDate = b.ReturnDate.HasValue ? DateOnly.FromDateTime(b.ReturnDate.Value) : DateOnly.MinValue
-
-        })
-        .ToList();
-
-    return booksRead;
-}
+            return booksRead;
+        }
 
 
 

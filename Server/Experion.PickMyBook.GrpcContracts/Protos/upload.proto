@@ -1,0 +1,20 @@
+﻿syntax = "proto3";
+
+package experion.pickmybook.grpccontracts;
+
+option csharp_namespace = "Experion.PickMyBook.GrpcContracts";
+
+service FileUploadService {
+    rpc UploadBookFile (FileUploadRequest) returns (FileUploadResponse){}
+    rpc UploadUserFile (FileUploadRequest) returns (FileUploadResponse){}
+}
+
+message FileUploadRequest {
+    bytes fileContent = 1;
+    string fileName = 2;
+}
+
+message FileUploadResponse {
+    string message = 1;
+    bool success = 2;
+}
